@@ -15,4 +15,4 @@
 
 - 비밀값(DB 비밀번호, WireGuard 개인키, AWS 액세스 키)은 레포에 올리지 않는다
 - main에 직접 push하지 않는다. 작업 브랜치 → PR → 리뷰 → merge
-- AWS 리소스 이름은 `pretix-demo-` 접두사, 태그 `Project=pretix-demo`, 리전 `ap-northeast-2`
+- AWS 리소스 이름은 `pretix-demo-` 접두사, 태그 `Project=pretix-demo`, 리전 `ap-northeast-2(서울)`
