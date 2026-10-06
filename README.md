@@ -1,6 +1,6 @@
 # 기본 프로젝트
 
-대입 원서접수 마감 트래픽 폭주 대응 하이브리드 인프라 (온프레미스 + AWS 버스팅)
+대입 원서접수 마감 트래픽 폭주 대응 하이브리드 인프라 (온프레미스 + AWS)
 
 평소에는 온프레미스에서 운영하고, 마감 직전 폭주 때만 AWS로 확장한다.
 
@@ -14,7 +14,7 @@
 └── monitoring/   알람·대시보드 설계
 ```
 
-### `onprem/` — 온프레미스 스택 (담당: 승호, 성민)
+### `onprem/` — 온프레미스 
 
 Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 실행한다.
 
@@ -25,7 +25,7 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 | `pretix.cfg.example` | pretix 설정 템플릿 (비밀번호 제외) |
 | `.env.example` | 환경변수 템플릿. 실제 `.env`는 커밋하지 않는다 |
 
-### `terraform/` — AWS 인프라 코드 (담당: 경현, 승호)
+### `terraform/` — IaC
 
 서울 리전에 VPC, NAT·WireGuard 인스턴스, ASG, ALB 등을 만든다. state는 S3 백엔드에 저장한다.
 
@@ -36,7 +36,6 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 | `network.tf` | VPC, 서브넷 4개, IGW, 라우팅 테이블, S3 엔드포인트 |
 | `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스). 커밋한다 |
 
-예정: `nat_wg.tf`(NAT, WireGuard), `iam_ecr.tf`(Role, ECR, Secrets Manager), `app.tf`(Launch Template, ASG), `alb_waf.tf`(ALB, WAF), `alarms.tf`(CloudWatch, SNS)
 
 ### `docs/` — 문서 (담당: 전원)
 
@@ -44,11 +43,9 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 |---|---|
 | `branch-rules.md` | 브랜치 이름, PR, 리뷰 규칙 |
 
-예정: 온프렘·AWS 구축 가이드, 측정 기록
 
-### `monitoring/` — 모니터링 설계 (담당: 성민, 경현)
+### `monitoring/` — 모니터링 설계
 
-예정: CloudWatch 알람 목록, 대시보드 구성, 온프렘(hey, docker stats)과 AWS 지표의 대응표
 
 ## 규칙
 
