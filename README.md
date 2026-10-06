@@ -37,7 +37,7 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 | `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스). 커밋한다 |
 
 
-### `docs/` — 문서 (담당: 전원)
+### `docs/` — 문서 
 
 | 파일 | 내용 |
 |---|---|
