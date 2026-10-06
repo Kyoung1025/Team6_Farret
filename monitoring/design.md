@@ -1,0 +1,77 @@
+# 모니터링 설계 (초안)
+
+AWS 쪽 알람·대시보드 설계와, 온프렘 측정값과의 대응 관계를 정리한다.
+임계값은 시작값이고 부하 테스트 결과를 보고 조정한다.
+
+## 1. 합격·먹통 기준 (성민님 측정 양식과 동일)
+
+| 판정 | 조건 |
+|---|---|
+| 합격 | p95 ≤ 2초 **그리고** 에러율 < 1% |
+| 먹통 | p95 > 5초 **또는** 에러율 > 5% |
+
+## 2. 지표 대응표
+
+| 지표 | 온프렘 (성민님) | AWS (CloudWatch) | 비고 |
+|---|---|---|---|
+| 응답 시간 p95 | hey 결과의 95% 지점 | ALB `TargetResponseTime` p95 | ⚠️ 아래 주의 참고 |
+| 에러율 | hey 상태 코드 중 200이 아닌 비율 | (`HTTPCode_Target_5XX_Count` + `HTTPCode_ELB_5XX_Count`) ÷ `RequestCount` | ELB 5xx는 정상 서버가 없을 때 ALB가 직접 내는 502/503 |
+| 처리량 | hey `Requests/sec` | ALB `RequestCount` (1분 합계 ÷ 60) | |
+| CPU | `docker stats` (5초 간격) | ASG 평균 `CPUUtilization` | |
+| 서버 대수 | VM 1대 고정 | ASG `GroupInServiceInstances` | |
+
+### ⚠️ 응답 시간은 직접 비교하지 않는다
+
+- **hey p95** = 클라이언트가 체감하는 전체 시간 (네트워크 + 온프렘 Nginx + ALB + 서버 처리)
+- **ALB `TargetResponseTime`** = ALB가 EC2에 요청을 보내고 응답을 받기까지의 서버 처리 시간만
+
+두 값을 나란히 놓으면 AWS가 실제보다 빨라 보인다.
+**Before/After 비교는 hey 값 하나로만 하고**, 같은 측정 PC에서 같은 경로(공인 IP)로 잰다.
+CloudWatch 값은 "왜 그렇게 나왔는지" 설명하는 보조 자료로 쓴다.
+
+## 3. CloudWatch 알람
+
+모든 알람은 SNS 주제 `pretix-demo-alerts`로 보낸다.
+
+| 알람 이름 | 지표 | 조건 (시작값) | 의미 |
+|---|---|---|---|
+| `pretix-demo-app-cpu-high` | ASG 평균 `CPUUtilization` | 80% 초과, 5분 | 확장이 부하를 못 따라감 |
+| `pretix-demo-latency-high` | ALB `TargetResponseTime` p95 | 2초 초과, 3분 | 합격 기준 위반 |
+| `pretix-demo-5xx-high` | ALB `HTTPCode_Target_5XX_Count` 합계 | 분당 10건 초과 | 에러율 상승 |
+| `pretix-demo-unhealthy-host` | ALB `UnHealthyHostCount` 최대 | 1 이상 | 인스턴스 장애 |
+
+### 추가 제안 (팀 논의 필요)
+
+| 알람 이름 | 지표 | 이유 |
+|---|---|---|
+| `pretix-demo-wg-down` | WireGuard 인스턴스 `StatusCheckFailed` | 터널이 끊기면 AWS의 앱 서버 전체가 DB에 접속하지 못한다 (단일 장애점) |
+| `pretix-demo-nat-down` | NAT 인스턴스 `StatusCheckFailed` | NAT가 죽으면 새 EC2가 이미지를 받지 못해 확장이 멈춘다 |
+| `pretix-demo-elb-5xx` | ALB `HTTPCode_ELB_5XX_Count` | 정상 서버가 0대일 때는 Target 5xx가 아니라 ELB 5xx로 집계된다 |
+
+## 4. 시연 대시보드 `pretix-demo`
+
+한 화면에 아래 위젯을 둔다. 시간 범위는 시연 구간(예: 30분), 1분 간격.
+
+| 위치 | 위젯 | 지표 |
+|---|---|---|
+| 1행 왼쪽 | 서버 대수 | ASG `GroupInServiceInstances`, `GroupDesiredCapacity` |
+| 1행 오른쪽 | 요청 수 | ALB `RequestCount` |
+| 2행 왼쪽 | 응답 시간 | ALB `TargetResponseTime` p50, p95 |
+| 2행 오른쪽 | 에러 | ALB `HTTPCode_Target_5XX_Count`, `HTTPCode_ELB_5XX_Count` |
+| 3행 왼쪽 | CPU | ASG 평균 `CPUUtilization` |
+| 3행 오른쪽 | 터널 트래픽 | WireGuard 인스턴스 `NetworkIn`, `NetworkOut` |
+
+온프렘 VM의 CPU·메모리는 CloudWatch에 들어오지 않는다. 측정 때 `docker stats` 기록을 따로 남긴다.
+
+## 5. SNS
+
+- 주제 이름: `pretix-demo-alerts`
+- 구독: 팀원 이메일 6개. 확인 메일의 링크를 각자 눌러야 구독이 확정된다
+- 오늘은 콘솔로 만들고, 나중에 `terraform/alarms.tf`로 옮긴다
+
+## 6. 성민님과 맞출 것
+
+- [ ] 측정 경로: Before(온프렘 단독)도 공인 IP 경로로 한 번 더 잴지
+- [ ] 측정 URL: 모든 단계에서 같은 이벤트 페이지
+- [ ] 에러율 계산: hey의 "200이 아닌 비율"에 302(리다이렉트)를 에러로 셀지
+- [ ] 기록 시각: 측정 시작·종료 시각을 적어 두면 CloudWatch 그래프와 맞춰 볼 수 있다
