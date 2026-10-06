@@ -35,6 +35,19 @@ variable "public_subnets" {
   }
 }
 
+# 팀원 집 IP라서 레포에 적지 않는다. terraform.tfvars(커밋 안 됨)에 넣는다
+# 예: onprem_public_cidr = "203.0.113.10/32"
+# 유동 IP라서 고정할 수 없으면 "0.0.0.0/0" (WireGuard는 키로 인증하므로 차선책)
+variable "onprem_public_cidr" {
+  description = "온프렘 공인 IP (/32). wg-sg의 UDP 51820 소스"
+  type        = string
+
+  validation {
+    condition     = can(cidrhost(var.onprem_public_cidr, 0))
+    error_message = "CIDR 형식이어야 합니다. 예: 203.0.113.10/32"
+  }
+}
+
 variable "app_subnets" {
   description = "App 서브넷 (앱 EC2)"
   type = map(object({
