@@ -1,0 +1,12 @@
+# 기본: git이 줄바꿈을 자동 정규화
+* text=auto
+
+# 리눅스에서 실행되는 파일은 항상 LF (윈도우에서 체크아웃해도 CRLF로 바뀌지 않게)
+*.sh   text eol=lf
+*.tf   text eol=lf
+*.hcl  text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.conf text eol=lf
+*.cfg  text eol=lf
+*.example text eol=lf

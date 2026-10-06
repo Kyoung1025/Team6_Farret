@@ -1,0 +1,17 @@
+# 비밀값
+.env
+*.key
+*.pem
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+crash.log
+# .terraform.lock.hcl 은 커밋한다 (팀이 같은 provider 버전을 쓰도록)
+
+# OS
+.DS_Store
+Thumbs.db
