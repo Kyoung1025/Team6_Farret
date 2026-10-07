@@ -3,7 +3,7 @@
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
-  enable_dns_hostnames = true
+  enable_dns_hostnames = false # 콘솔 구성과 같게. 인터페이스 엔드포인트를 쓰게 되면 true로 바꾼다
 
   tags = { Name = "${var.name_prefix}-vpc" }
 }
@@ -17,9 +17,10 @@ resource "aws_internet_gateway" "main" {
 resource "aws_subnet" "public" {
   for_each = var.public_subnets
 
-  vpc_id            = aws_vpc.main.id
-  availability_zone = each.value.az
-  cidr_block        = each.value.cidr
+  vpc_id                  = aws_vpc.main.id
+  availability_zone       = each.value.az
+  cidr_block              = each.value.cidr
+  map_public_ip_on_launch = true # NAT·WireGuard 인스턴스가 퍼블릭 IP를 받는다
 
   tags = { Name = "${var.name_prefix}-public-${each.key}" }
 }
@@ -78,5 +79,5 @@ resource "aws_vpc_endpoint" "s3" {
   vpc_endpoint_type = "Gateway"
   route_table_ids   = [aws_route_table.app.id]
 
-  tags = { Name = "${var.name_prefix}-s3-endpoint" }
+  tags = { Name = "${var.name_prefix}-s3-ep" }
 }

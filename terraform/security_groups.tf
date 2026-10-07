@@ -1,6 +1,9 @@
 # AWS 구축 가이드 3-3(보안그룹)을 코드로 옮긴 것
 # 소스를 IP 대신 다른 보안그룹으로 지정해서 ALB → 앱 순서의 접근만 허용한다
 # SSH(22)는 어디에도 열지 않는다. 인스턴스 접속은 SSM Session Manager로 한다
+#
+# description은 콘솔 구성과 같게 이름으로 둔다
+# 보안그룹 description은 바꾸면 보안그룹을 지우고 다시 만들어야 해서, 설명은 주석으로 적는다
 
 locals {
   app_subnet_cidrs = { for k, s in var.app_subnets : k => s.cidr }
@@ -10,15 +13,15 @@ locals {
 
 resource "aws_security_group" "alb" {
   name        = "${var.name_prefix}-alb-sg"
-  description = "ALB: HTTP from internet"
+  description = "${var.name_prefix}-alb-sg"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${var.name_prefix}-alb-sg" }
 }
 
+# HTTP from internet
 resource "aws_vpc_security_group_ingress_rule" "alb_http" {
   security_group_id = aws_security_group.alb.id
-  description       = "HTTP from internet"
   ip_protocol       = "tcp"
   from_port         = 80
   to_port           = 80
@@ -29,15 +32,15 @@ resource "aws_vpc_security_group_ingress_rule" "alb_http" {
 
 resource "aws_security_group" "app" {
   name        = "${var.name_prefix}-app-sg"
-  description = "App EC2: HTTP from ALB only"
+  description = "${var.name_prefix}-app-sg"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${var.name_prefix}-app-sg" }
 }
 
+# HTTP from ALB
 resource "aws_vpc_security_group_ingress_rule" "app_http_from_alb" {
   security_group_id            = aws_security_group.app.id
-  description                  = "HTTP from ALB"
   ip_protocol                  = "tcp"
   from_port                    = 80
   to_port                      = 80
@@ -48,17 +51,17 @@ resource "aws_vpc_security_group_ingress_rule" "app_http_from_alb" {
 
 resource "aws_security_group" "nat" {
   name        = "${var.name_prefix}-nat-sg"
-  description = "NAT instance: all traffic from app subnets"
+  description = "${var.name_prefix}-nat-sg"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${var.name_prefix}-nat-sg" }
 }
 
+# All traffic from app subnets
 resource "aws_vpc_security_group_ingress_rule" "nat_from_app" {
   for_each = local.app_subnet_cidrs
 
   security_group_id = aws_security_group.nat.id
-  description       = "All traffic from app-${each.key}"
   ip_protocol       = "-1"
   cidr_ipv4         = each.value
 }
@@ -67,26 +70,26 @@ resource "aws_vpc_security_group_ingress_rule" "nat_from_app" {
 
 resource "aws_security_group" "wg" {
   name        = "${var.name_prefix}-wg-sg"
-  description = "WireGuard: tunnel from on-prem, forward from app subnets"
+  description = "${var.name_prefix}-wg-sg"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${var.name_prefix}-wg-sg" }
 }
 
+# WireGuard from on-prem
 resource "aws_vpc_security_group_ingress_rule" "wg_tunnel" {
   security_group_id = aws_security_group.wg.id
-  description       = "WireGuard from on-prem"
   ip_protocol       = "udp"
   from_port         = 51820
   to_port           = 51820
   cidr_ipv4         = var.onprem_public_cidr
 }
 
+# All traffic from app subnets (DB 요청을 터널로 넘긴다)
 resource "aws_vpc_security_group_ingress_rule" "wg_from_app" {
   for_each = local.app_subnet_cidrs
 
   security_group_id = aws_security_group.wg.id
-  description       = "All traffic from app-${each.key} (to tunnel)"
   ip_protocol       = "-1"
   cidr_ipv4         = each.value
 }
@@ -103,7 +106,6 @@ resource "aws_vpc_security_group_egress_rule" "all" {
   }
 
   security_group_id = each.value
-  description       = "All outbound"
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
 }
