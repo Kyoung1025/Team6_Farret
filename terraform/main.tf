@@ -8,7 +8,7 @@ terraform {
     }
   }
 
-  # state 파일을 팀 공용 S3 버킷에 둔다 (버킷은 CLI로 따로 만들었고 destroy 대상이 아니다)
+  # state 파일을 팀 공용 S3 버킷에 둔다 
   backend "s3" {
     bucket       = "pretix-demo-tfstate-994114886472"
     key          = "pretix-demo/terraform.tfstate"
