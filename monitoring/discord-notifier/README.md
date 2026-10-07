@@ -24,15 +24,3 @@ VPC에 연결하지 않는 이유: 연결하면 디스코드로 나가는 길이
 2. 코드 탭: `lambda_function.py` 내용을 붙여넣고 **Deploy**
 3. 구성 → 환경 변수 → `WEBHOOK_URL` = 디스코드 웹훅 URL
 4. 트리거 추가 → SNS → `pretix-demo-alerts`
-
-## 테스트
-
-```powershell
-aws sns publish --topic-arn arn:aws:sns:ap-northeast-2:994114886472:pretix-demo-alerts --subject "[pretix-demo] 테스트" --message "SNS → Lambda → 디스코드 테스트" --profile ferret --region ap-northeast-2
-```
-
-디스코드 채널과 이메일에 둘 다 오면 정상. 안 오면 Lambda → 모니터링 → CloudWatch Logs에서 오류 확인.
-
-## 비용
-
-Lambda(월 100만 건 무료), SNS → Lambda 전달(무료). 사실상 0원.
