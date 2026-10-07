@@ -1,5 +1,0 @@
-# 이 파일을 terraform.tfvars로 복사해서 값을 채운다
-# terraform.tfvars는 .gitignore에 있어서 커밋되지 않는다
-
-# 온프렘 공인 IP (값 표의 "온프렘 공인 IP"). 끝에 /32를 붙인다
-onprem_public_cidr = "203.0.113.10/32"

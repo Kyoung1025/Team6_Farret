@@ -35,7 +35,6 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 | `variables.tf` | 리전, 이름 접두사, VPC·서브넷 대역 |
 | `network.tf` | VPC, 서브넷 4개, IGW, 라우팅 테이블, S3 엔드포인트 |
 | `security_groups.tf` | 보안그룹 4개 (alb, app, nat, wg) |
-| `terraform.tfvars.example` | 변수 값 예시. `terraform.tfvars`로 복사해서 쓴다 (커밋 안 됨) |
 | `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스). 커밋한다 |
 
 
