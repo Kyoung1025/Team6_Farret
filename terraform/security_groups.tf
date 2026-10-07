@@ -2,8 +2,7 @@
 # 소스를 IP 대신 다른 보안그룹으로 지정해서 ALB → 앱 순서의 접근만 허용한다
 # SSH(22)는 어디에도 열지 않는다. 인스턴스 접속은 SSM Session Manager로 한다
 #
-# description은 콘솔 구성과 같게 이름으로 둔다
-# 보안그룹 description은 바꾸면 보안그룹을 지우고 다시 만들어야 해서, 설명은 주석으로 적는다
+# 보안그룹 description은 바꾸면 보안그룹을 지우고 다시 만들어야 해서, 설명은 주석으로 적음.
 
 locals {
   app_subnet_cidrs = { for k, s in var.app_subnets : k => s.cidr }
