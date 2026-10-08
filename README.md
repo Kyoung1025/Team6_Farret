@@ -27,13 +27,22 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 
 ### `terraform/` — IaC
 
-서울 리전에 VPC, NAT·WireGuard 인스턴스, ASG, ALB 등을 만든다. state는 S3 백엔드에 저장한다.
+서울 리전에 VPC, NAT·WireGuard 인스턴스, ASG, ALB 등을 만든다. state는 S3 버킷 `pretix-demo-tfstate-994114886472`에 저장한다.
+
+```powershell
+aws login --profile ferret        # 콘솔 로그인으로 CLI 인증 (몇 시간 뒤 만료)
+$env:AWS_PROFILE = "ferret"       # 맥: export AWS_PROFILE=ferret
+cd terraform
+terraform init
+terraform plan                    # apply 전에 반드시 plan 확인
+```
 
 | 파일 | 내용 |
 |---|---|
 | `main.tf` | Terraform·provider 버전, S3 백엔드, 공통 태그 |
 | `variables.tf` | 리전, 이름 접두사, VPC·서브넷 대역 |
 | `network.tf` | VPC, 서브넷 4개, IGW, 라우팅 테이블, S3 엔드포인트 |
+| `security_groups.tf` | 보안그룹 4개 (alb, app, nat, wg) |
 | `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스). 커밋한다 |
 
 

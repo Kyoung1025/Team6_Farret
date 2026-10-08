@@ -8,14 +8,14 @@ terraform {
     }
   }
 
-  # 버킷 이름에 계정 ID가 들어가서, IAM 사용자를 받은 뒤 채운다
-  # backend "s3" {
-  #   bucket       = "pretix-demo-tfstate-<계정ID>"
-  #   key          = "pretix-demo/terraform.tfstate"
-  #   region       = "ap-northeast-2"
-  #   use_lockfile = true # S3 자체 락. 두 사람이 동시에 apply하는 것을 막는다
-  #   encrypt      = true
-  # }
+  # state 파일을 팀 공용 S3 버킷에 둔다 
+  backend "s3" {
+    bucket       = "pretix-demo-tfstate-994114886472"
+    key          = "pretix-demo/terraform.tfstate"
+    region       = "ap-northeast-2"
+    use_lockfile = true # S3 자체 락. 두 사람이 동시에 apply하는 것을 막는다
+    encrypt      = true
+  }
 }
 
 provider "aws" {
