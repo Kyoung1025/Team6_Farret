@@ -78,6 +78,7 @@ resource "aws_security_group" "wg" {
 # WireGuard from on-prem
 resource "aws_vpc_security_group_ingress_rule" "wg_tunnel" {
   security_group_id = aws_security_group.wg.id
+  description       = " on-prem WireGuard (sungho public IP)" # 콘솔 값과 같게 (앞 공백 포함)
   ip_protocol       = "udp"
   from_port         = 51820
   to_port           = 51820
@@ -89,6 +90,7 @@ resource "aws_vpc_security_group_ingress_rule" "wg_from_app" {
   for_each = local.app_subnet_cidrs
 
   security_group_id = aws_security_group.wg.id
+  description       = "app-${each.key} to on-prem DB via tunnel"
   ip_protocol       = "-1"
   cidr_ipv4         = each.value
 }
