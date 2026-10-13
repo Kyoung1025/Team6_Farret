@@ -50,7 +50,7 @@ terraform plan                    # apply 전에 반드시 plan 확인
 | `modules/app/` | Launch Template, Auto Scaling 그룹, 확장 정책, 부팅 스크립트, ECR, DB 비밀번호 보관함 |
 | `modules/gateway/` | NAT 인스턴스, WireGuard 서버, 탄력적 IP, App 경로 |
 | `modules/monitoring/` | SNS 알림, 디스코드 Lambda, 알람 3개, 대시보드 |
-| `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스). 커밋한다 |
+| `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스) |
 
 
 ### `docs/` — 문서 
