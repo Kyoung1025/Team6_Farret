@@ -25,19 +25,7 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 | `pretix.cfg.example` | pretix 설정 템플릿 (비밀번호 제외) |
 | `.env.example` | 환경변수 템플릿. 실제 `.env`는 커밋하지 않는다 |
 
-### `terraform/` — IaC
 
-서울 리전에 VPC, NAT·WireGuard 인스턴스, ASG, ALB 등을 만든다. state는 S3 버킷 `pretix-demo-tfstate-994114886472`에 저장한다.
-
-```powershell
-aws login --profile ferret        # 콘솔 로그인으로 CLI 인증 (몇 시간 뒤 만료)
-$env:AWS_PROFILE = "ferret"       # 맥: export AWS_PROFILE=ferret
-cd terraform
-terraform init
-terraform plan                    # apply 전에 반드시 plan 확인
-```
-
-루트에서 모듈을 조립하고, 리소스는 `modules/` 아래 역할별 모듈에 있다.
 
 | 파일 | 내용 |
 |---|---|
