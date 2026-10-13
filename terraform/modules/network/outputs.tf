@@ -14,7 +14,7 @@ output "app_subnet_ids" {
 }
 
 output "app_route_table_id" {
-  description = "App 라우팅 테이블 ID (NAT·WireGuard 경로를 추가할 곳)"
+  description = "App 라우팅 테이블 ID"
   value       = aws_route_table.app.id
 }
 

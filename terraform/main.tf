@@ -4,21 +4,20 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 6.67" # 6.67 이상 7.0 미만
+      version = "~> 6.67"
     }
-    # Lambda 코드를 zip으로 묶을 때 사용
+    # Lambda zip 패키징
     archive = {
       source  = "hashicorp/archive"
       version = "~> 2.8"
     }
   }
 
-  # state 파일을 팀 공용 S3 버킷에 둔다
   backend "s3" {
     bucket       = "pretix-demo-tfstate-994114886472"
     key          = "pretix-demo/terraform.tfstate"
     region       = "ap-northeast-2"
-    use_lockfile = true # S3 자체 락. 두 사람이 동시에 apply하는 것을 막는다
+    use_lockfile = true # S3 네이티브 락
     encrypt      = true
   }
 }
@@ -32,8 +31,6 @@ provider "aws" {
     }
   }
 }
-
-# --- 모듈 조립: 앞 모듈의 출력이 다음 모듈의 입력이 된다 ---
 
 module "network" {
   source = "./modules/network"
@@ -75,7 +72,7 @@ module "gateway" {
   name_prefix           = var.name_prefix
   subnet_id             = module.network.public_subnet_ids[0] # public-a
   nat_ami_id            = var.nat_ami_id
-  wg_ami_id             = var.app_ami_id # 앱 EC2와 같은 Ubuntu 24.04
+  wg_ami_id             = var.app_ami_id # Ubuntu 24.04
   nat_security_group_id = module.network.security_group_ids["nat"]
   wg_security_group_id  = module.network.security_group_ids["wg"]
   instance_profile_name = "${var.name_prefix}-infra-role"
@@ -97,7 +94,6 @@ module "monitoring" {
   lambda_source_file      = "${path.root}/../monitoring/discord-notifier/lambda_function.py"
 }
 
-# 로그인한 계정의 ID (ARN을 만들 때 사용)
 data "aws_caller_identity" "current" {}
 
 locals {

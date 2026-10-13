@@ -1,5 +1,5 @@
 output "wg_public_ip" {
-  description = "WireGuard 탄력적 IP. 온프렘 wg0.conf의 Endpoint"
+  description = "WireGuard 탄력적 IP"
   value       = aws_eip.wg.public_ip
 }
 

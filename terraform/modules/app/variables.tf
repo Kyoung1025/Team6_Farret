@@ -4,7 +4,7 @@ variable "name_prefix" {
 }
 
 variable "region" {
-  description = "부팅 스크립트가 ECR·Secrets Manager를 부를 리전"
+  description = "ECR, Secrets Manager 리전"
   type        = string
 }
 
@@ -14,7 +14,7 @@ variable "ami_id" {
 }
 
 variable "ami_snapshot_id" {
-  description = "ami_id의 루트 볼륨 스냅샷. AMI를 바꾸면 같이 바꾼다"
+  description = "ami_id의 루트 볼륨 스냅샷"
   type        = string
 }
 
@@ -34,11 +34,11 @@ variable "target_group_arn" {
 }
 
 variable "public_url" {
-  description = "수험생이 접속하는 주소. 온프렘 pretix.cfg의 url과 같아야 한다"
+  description = "pretix.cfg의 url"
   type        = string
 }
 
 variable "allowed_hosts" {
-  description = "pretix가 받아들이는 Host 목록 (ALB 헬스 체크가 쓰는 사설 IP 대역 포함)"
+  description = "pretix.cfg의 hosts"
   type        = string
 }

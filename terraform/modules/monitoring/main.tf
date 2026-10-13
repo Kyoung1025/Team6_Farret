@@ -1,7 +1,4 @@
-# monitoring/design.md의 알림 구성을 코드로 옮긴 것
-# CloudWatch 알람 → SNS 토픽 → 이메일 + Lambda → 디스코드
-
-# --- SNS 토픽과 구독 ---
+# 알람 → SNS → 이메일, Lambda(디스코드)
 
 resource "aws_sns_topic" "alerts" {
   name = "${var.name_prefix}-alerts"
@@ -19,9 +16,6 @@ resource "aws_sns_topic_subscription" "discord" {
   endpoint  = aws_lambda_function.discord.arn
 }
 
-# --- 디스코드로 보내는 Lambda ---
-
-# monitoring/discord-notifier/lambda_function.py를 zip으로 묶는다
 data "archive_file" "discord" {
   type        = "zip"
   source_file = var.lambda_source_file
@@ -36,7 +30,6 @@ resource "aws_lambda_function" "discord" {
   filename         = data.archive_file.discord.output_path
   source_code_hash = data.archive_file.discord.output_base64sha256
 
-  # 웹훅 URL은 코드에 두지 않고 terraform.tfvars(커밋 안 됨)에서 받는다
   environment {
     variables = {
       WEBHOOK_URL = var.discord_webhook_url
@@ -44,7 +37,6 @@ resource "aws_lambda_function" "discord" {
   }
 }
 
-# SNS가 이 Lambda를 부를 수 있게 허용
 resource "aws_lambda_permission" "sns" {
   statement_id  = "sns-${var.name_prefix}-alerts"
   action        = "lambda:InvokeFunction"
@@ -53,12 +45,10 @@ resource "aws_lambda_permission" "sns" {
   source_arn    = aws_sns_topic.alerts.arn
 }
 
-# --- 알람 ---
-
 locals {
   alarm_actions = [aws_sns_topic.alerts.arn]
 
-  # 가용 영역은 넣지 않는다. 넣으면 그 영역 서버만 보고 다른 영역 서버는 놓친다
+  # AvailabilityZone을 넣으면 그 AZ만 집계됨
   alb_dimensions = {
     LoadBalancer = var.alb_arn_suffix
     TargetGroup  = var.target_group_arn_suffix
@@ -115,8 +105,6 @@ resource "aws_cloudwatch_metric_alarm" "unhealthy_host" {
   alarm_actions       = local.alarm_actions
   ok_actions          = local.alarm_actions
 }
-
-# --- 대시보드 ---
 
 resource "aws_cloudwatch_dashboard" "main" {
   dashboard_name = var.name_prefix

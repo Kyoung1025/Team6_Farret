@@ -1,5 +1,5 @@
 output "dns_name" {
-  description = "ALB 주소. 온프렘 Nginx backup 서버로 넣는다"
+  description = "ALB DNS 이름"
   value       = aws_lb.app.dns_name
 }
 

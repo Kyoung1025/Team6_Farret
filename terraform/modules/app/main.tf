@@ -1,9 +1,6 @@
-# AWS 구축 가이드 6번(앱 EC2: Launch Template과 ASG)을 코드로 옮긴 것
-# 콘솔 구성과 같게 맞춰 두었다. 설계 개선(AUTOMIGRATE=skip, pretix 버전 고정 등)은 별도 PR로 한다
+# TODO: AUTOMIGRATE=skip, pretix 이미지 버전 고정
 
 data "aws_caller_identity" "current" {}
-
-# --- Launch Template ---
 
 resource "aws_launch_template" "app" {
   name          = "${var.name_prefix}-lt"
@@ -23,18 +20,17 @@ resource "aws_launch_template" "app" {
       volume_type           = "gp3"
       delete_on_termination = true
       encrypted             = "false"
-      snapshot_id           = var.ami_snapshot_id # AMI의 루트 스냅샷 (콘솔이 자동으로 넣은 값)
+      snapshot_id           = var.ami_snapshot_id
     }
   }
 
-  # IMDSv2 필수 (인스턴스 메타데이터를 토큰 없이 못 읽게)
+  # IMDSv2
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
     http_put_response_hop_limit = 2
   }
 
-  # 부팅 스크립트: Docker 설치 → Secrets Manager에서 DB 비밀번호 조회 → pretix 실행
   user_data = base64encode(templatefile("${path.module}/templates/user-data.sh.tftpl", {
     region        = var.region
     account_id    = data.aws_caller_identity.current.account_id
@@ -42,8 +38,6 @@ resource "aws_launch_template" "app" {
     allowed_hosts = var.allowed_hosts
   }))
 }
-
-# --- Auto Scaling 그룹 ---
 
 resource "aws_autoscaling_group" "app" {
   name                      = "${var.name_prefix}-asg"
@@ -55,9 +49,9 @@ resource "aws_autoscaling_group" "app" {
   health_check_type         = "ELB"
   health_check_grace_period = 600
   default_cooldown          = 300
-  capacity_rebalance        = true # Spot 회수 경고가 오면 미리 대체 서버를 띄운다
+  capacity_rebalance        = true
 
-  # On-Demand 1대를 기본으로 두고, 그 위로 늘어나는 서버는 전부 Spot
+  # On-Demand 1대 + 나머지 Spot
   mixed_instances_policy {
     instances_distribution {
       on_demand_allocation_strategy            = "prioritized"
@@ -80,7 +74,7 @@ resource "aws_autoscaling_group" "app" {
     }
   }
 
-  # 대시보드의 서버 수 그래프용 그룹 지표
+  # 대시보드용 그룹 지표
   metrics_granularity = "1Minute"
   enabled_metrics = [
     "GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity",
@@ -96,13 +90,13 @@ resource "aws_autoscaling_group" "app" {
     "WarmPoolTerminatingCapacity", "WarmPoolTerminatingRetainedCapacity",
   ]
 
-  # 서버 대수는 확장 정책과 예약 스케일링, 사람이 바꾼다. Terraform이 되돌리지 않게 제외
+  # 확장 정책이 조정하는 값
   lifecycle {
     ignore_changes = [desired_capacity]
   }
 }
 
-# --- 확장 정책: 평균 CPU 60% 유지 (서버당 요청 수로 바꿀 예정) ---
+# TODO: ALBRequestCountPerTarget으로 변경
 
 resource "aws_autoscaling_policy" "cpu" {
   name                      = "Target Tracking Policy"
@@ -119,9 +113,6 @@ resource "aws_autoscaling_policy" "cpu" {
   }
 }
 
-# --- 앱 서버가 쓰는 저장소 ---
-
-# pretix 컨테이너 이미지 저장소. 부팅 스크립트가 여기서 pretix:stable을 받는다
 resource "aws_ecr_repository" "pretix" {
   name                 = "pretix"
   image_tag_mutability = "MUTABLE"
@@ -131,7 +122,7 @@ resource "aws_ecr_repository" "pretix" {
   }
 }
 
-# DB 비밀번호 보관함. 값은 콘솔에서 넣고 코드로 관리하지 않는다 (state에 남지 않게)
+# 값은 콘솔에서 관리 (state에 남지 않게)
 resource "aws_secretsmanager_secret" "db_password" {
   name = "pretix/db-password"
 }

@@ -29,13 +29,13 @@ variable "alert_email" {
 }
 
 variable "discord_webhook_url" {
-  description = "디스코드 웹훅 URL. 알면 누구나 채널에 글을 쓸 수 있어 비밀값으로 다룬다"
+  description = "디스코드 웹훅 URL"
   type        = string
   sensitive   = true
 }
 
 variable "lambda_role_arn" {
-  description = "Lambda 실행 역할 (형서님이 콘솔에서 만든 역할)"
+  description = "Lambda 실행 역할 ARN"
   type        = string
 }
 

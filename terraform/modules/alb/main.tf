@@ -1,7 +1,3 @@
-# AWS 구축 가이드 7번(ALB, WAF)을 코드로 옮긴 것
-
-# --- 대상 그룹: ASG가 서버를 넣고 뺀다 ---
-
 resource "aws_lb_target_group" "app" {
   name                 = "${var.name_prefix}-tg"
   port                 = 80
@@ -10,7 +6,7 @@ resource "aws_lb_target_group" "app" {
   target_type          = "instance"
   deregistration_delay = 60
 
-  # pretix의 /healthcheck/는 DB와 Redis 연결까지 확인한다
+  # /healthcheck/는 DB, Redis 연결까지 확인
   health_check {
     path                = "/healthcheck/"
     matcher             = "200-399"
@@ -22,15 +18,13 @@ resource "aws_lb_target_group" "app" {
     unhealthy_threshold = 3
   }
 
-  # 고정 세션: 앱 서버마다 Redis가 따로라서 같은 사용자를 같은 서버로 보낸다
+  # 앱 서버마다 Redis가 따로라서 세션 고정
   stickiness {
     type            = "lb_cookie"
     cookie_duration = 3600
     enabled         = true
   }
 }
-
-# --- ALB: 인터넷에서 받는 입구 ---
 
 resource "aws_lb" "app" {
   name               = "${var.name_prefix}-alb"
@@ -46,7 +40,7 @@ resource "aws_lb_listener" "http" {
   port              = 80
   protocol          = "HTTP"
 
-  # 콘솔이 만든 형식(가중치 1, 리스너 단위 고정 세션 끔)과 같게 둔다
+  # 콘솔 기본 형식 (weight 1, 리스너 stickiness off)
   default_action {
     type = "forward"
     forward {
@@ -62,8 +56,7 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# --- WAF: ALB 앞에서 흔한 공격 패턴을 검사한다 ---
-# 지금은 두 규칙 모두 Count(기록만, 차단 안 함)
+# 관리형 규칙 2개, 둘 다 Count 모드 (차단 안 함)
 
 resource "aws_wafv2_web_acl" "main" {
   name        = "${var.name_prefix}-waf"

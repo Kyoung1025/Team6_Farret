@@ -29,7 +29,7 @@ variable "wg_security_group_id" {
 }
 
 variable "instance_profile_name" {
-  description = "두 인스턴스의 IAM 인스턴스 프로파일 (SSM 접속용)"
+  description = "IAM 인스턴스 프로파일 이름"
   type        = string
 }
 
@@ -39,6 +39,6 @@ variable "app_route_table_id" {
 }
 
 variable "onprem_tunnel_cidr" {
-  description = "WireGuard 터널 대역. 온프렘 DB(10.10.0.2)가 여기에 있다"
+  description = "WireGuard 터널 대역"
   type        = string
 }

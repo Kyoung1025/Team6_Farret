@@ -1,8 +1,6 @@
-# 콘솔로 이미 만든 리소스를 코드와 연결
-# plan에서 "import"로 나오고 변경 사항이 없으면 코드가 콘솔 구성과 같다는 뜻
-# 리소스가 모듈 안에 있어서 주소가 module.<모듈이름>.<리소스> 형식이다
+# 콘솔에서 만든 리소스 import. apply 후 삭제
 
-# --- 네트워크  ---
+# --- 네트워크 ---
 
 import {
   to = module.network.aws_vpc.main
@@ -44,7 +42,7 @@ import {
   id = "rtb-06b3627064ef36902"
 }
 
-# 라우팅 테이블 연결의 ID 형식은 "서브넷ID/라우팅테이블ID"
+# ID: 서브넷ID/라우팅테이블ID
 import {
   to = module.network.aws_route_table_association.public["a"]
   id = "subnet-0d71e57aaab03a078/rtb-0b46ce0870e28a893"
@@ -70,7 +68,7 @@ import {
   id = "vpce-014add8bb5c9555f6"
 }
 
-# --- 보안그룹  ---
+# --- 보안그룹 ---
 
 import {
   to = module.network.aws_security_group.alb
@@ -149,7 +147,7 @@ import {
   id = "sgr-06f1090350ef347ff"
 }
 
-# --- 앱 EC2 (준용님) ---
+# --- 앱 EC2 ---
 
 import {
   to = module.app.aws_launch_template.app
@@ -166,8 +164,7 @@ import {
   id = "pretix-demo-asg/Target Tracking Policy"
 }
 
-# --- ALB (준용님) ---
-# ARN의 계정 ID는 main.tf의 data.aws_caller_identity (로그인한 계정)에서 가져온다
+# --- ALB ---
 
 import {
   to = module.alb.aws_lb_target_group.app
@@ -184,7 +181,7 @@ import {
   id = "arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:listener/app/pretix-demo-alb/12db2ff2dd71b2a8/73db8926c6001b4d"
 }
 
-# --- NAT·WireGuard (형서님) ---
+# --- NAT·WireGuard ---
 
 import {
   to = module.gateway.aws_instance.nat
@@ -206,7 +203,7 @@ import {
   id = "eipassoc-0e974b07465ef7f51"
 }
 
-# 경로의 ID 형식은 "라우팅테이블ID_목적지대역"
+# ID: 라우팅테이블ID_목적지
 import {
   to = module.gateway.aws_route.app_internet
   id = "rtb-06b3627064ef36902_0.0.0.0/0"
@@ -217,7 +214,7 @@ import {
   id = "rtb-06b3627064ef36902_10.10.0.0/24"
 }
 
-# --- 알림 (경현님) ---
+# --- 알림 ---
 
 import {
   to = module.monitoring.aws_sns_topic.alerts
@@ -264,7 +261,7 @@ import {
   id = "pretix-demo"
 }
 
-# --- 저장소 (app 모듈) ---
+# --- ECR, Secrets Manager ---
 
 import {
   to = module.app.aws_ecr_repository.pretix
@@ -276,15 +273,15 @@ import {
   id = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:pretix/db-password-xos7oY"
 }
 
-# --- WAF (alb 모듈) ---
+# --- WAF ---
 
-# ID 형식은 "웹ACL ID/이름/범위"
+# ID: 웹ACL ID/이름/범위
 import {
   to = module.alb.aws_wafv2_web_acl.main
   id = "6da885ad-e174-4364-8845-9bfa418f8b38/pretix-demo-waf/REGIONAL"
 }
 
-# ID 형식은 "웹ACL ARN,ALB ARN"
+# ID: 웹ACL ARN,ALB ARN
 import {
   to = module.alb.aws_wafv2_web_acl_association.alb
   id = "arn:aws:wafv2:${var.region}:${data.aws_caller_identity.current.account_id}:regional/webacl/pretix-demo-waf/6da885ad-e174-4364-8845-9bfa418f8b38,arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"

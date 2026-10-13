@@ -1,7 +1,4 @@
-# AWS 구축 가이드 4번(NAT 인스턴스)과 5번(WireGuard 서버)을 코드로 옮긴 것
-# 둘 다 다른 서버의 트래픽을 대신 넘겨 주므로 출발지/목적지 확인(source_dest_check)을 끈다
-
-# --- NAT 인스턴스: 앱 서브넷의 인터넷 요청(ECR, 패키지 설치)을 내보낸다 ---
+# source_dest_check를 꺼야 다른 서버 트래픽을 넘길 수 있음
 
 resource "aws_instance" "nat" {
   ami                    = var.nat_ami_id
@@ -11,7 +8,6 @@ resource "aws_instance" "nat" {
   iam_instance_profile   = var.instance_profile_name
   source_dest_check      = false
 
-  # iptables로 앱 서브넷 트래픽을 자기 공인 IP로 바꿔서(MASQUERADE) 내보낸다
   user_data = file("${path.module}/templates/nat-user-data.sh")
 
   root_block_device {
@@ -28,8 +24,7 @@ resource "aws_instance" "nat" {
   tags = { Name = "${var.name_prefix}-nat" }
 }
 
-# --- WireGuard 서버: 온프렘과 터널을 맺고 앱 EC2의 DB·Redis 요청을 넘긴다 ---
-# WireGuard 설정(키 포함)은 서버 안에 직접 했고 user data가 없다. 키는 코드에 넣지 않는다
+# WireGuard 설정과 키는 서버에서 직접 관리
 
 resource "aws_instance" "wg" {
   ami                    = var.wg_ami_id
@@ -50,10 +45,9 @@ resource "aws_instance" "wg" {
     http_put_response_hop_limit = 2
   }
 
-  tags = { Name = "wireguard-instance" } # 콘솔에서 지은 이름 그대로
+  tags = { Name = "wireguard-instance" }
 }
 
-# 온프렘 WireGuard가 접속할 주소라서 바뀌지 않는 탄력적 IP를 붙인다
 resource "aws_eip" "wg" {
   domain = "vpc"
 
@@ -65,16 +59,12 @@ resource "aws_eip_association" "wg" {
   instance_id   = aws_instance.wg.id
 }
 
-# --- App 라우팅 테이블 경로 ---
-
-# 인터넷으로 나가는 요청 → NAT 인스턴스
 resource "aws_route" "app_internet" {
   route_table_id         = var.app_route_table_id
   destination_cidr_block = "0.0.0.0/0"
   network_interface_id   = aws_instance.nat.primary_network_interface_id
 }
 
-# 온프렘 WireGuard 대역(DB 10.10.0.2) → WireGuard 서버
 resource "aws_route" "app_onprem" {
   route_table_id         = var.app_route_table_id
   destination_cidr_block = var.onprem_tunnel_cidr
