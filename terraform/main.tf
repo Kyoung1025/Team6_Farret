@@ -27,3 +27,39 @@ provider "aws" {
     }
   }
 }
+
+# --- 모듈 조립: 앞 모듈의 출력이 다음 모듈의 입력이 된다 ---
+
+module "network" {
+  source = "./modules/network"
+
+  name_prefix        = var.name_prefix
+  region             = var.region
+  vpc_cidr           = var.vpc_cidr
+  public_subnets     = var.public_subnets
+  app_subnets        = var.app_subnets
+  onprem_public_cidr = var.onprem_public_cidr
+}
+
+module "alb" {
+  source = "./modules/alb"
+
+  name_prefix       = var.name_prefix
+  vpc_id            = module.network.vpc_id
+  subnet_ids        = module.network.public_subnet_ids
+  security_group_id = module.network.security_group_ids["alb"]
+}
+
+module "app" {
+  source = "./modules/app"
+
+  name_prefix       = var.name_prefix
+  region            = var.region
+  ami_id            = var.app_ami_id
+  ami_snapshot_id   = var.app_ami_snapshot_id
+  subnet_ids        = module.network.app_subnet_ids
+  security_group_id = module.network.security_group_ids["app"]
+  target_group_arn  = module.alb.target_group_arn
+  public_url        = var.pretix_public_url
+  allowed_hosts     = var.pretix_allowed_hosts
+}

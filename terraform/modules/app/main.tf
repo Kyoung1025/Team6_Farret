@@ -7,14 +7,14 @@ data "aws_caller_identity" "current" {}
 
 resource "aws_launch_template" "app" {
   name          = "${var.name_prefix}-lt"
-  image_id      = var.app_ami_id
+  image_id      = var.ami_id
   instance_type = "t3.medium"
 
   iam_instance_profile {
     arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/${var.name_prefix}-app-role"
   }
 
-  vpc_security_group_ids = [aws_security_group.app.id]
+  vpc_security_group_ids = [var.security_group_id]
 
   block_device_mappings {
     device_name = "/dev/sda1"
@@ -23,7 +23,7 @@ resource "aws_launch_template" "app" {
       volume_type           = "gp3"
       delete_on_termination = true
       encrypted             = "false"
-      snapshot_id           = var.app_ami_snapshot_id # AMI의 루트 스냅샷 (콘솔이 자동으로 넣은 값)
+      snapshot_id           = var.ami_snapshot_id # AMI의 루트 스냅샷 (콘솔이 자동으로 넣은 값)
     }
   }
 
@@ -35,11 +35,11 @@ resource "aws_launch_template" "app" {
   }
 
   # 부팅 스크립트: Docker 설치 → Secrets Manager에서 DB 비밀번호 조회 → pretix 실행
-  user_data = base64encode(templatefile("${path.module}/scripts/app-user-data.sh.tftpl", {
+  user_data = base64encode(templatefile("${path.module}/templates/user-data.sh.tftpl", {
     region        = var.region
     account_id    = data.aws_caller_identity.current.account_id
-    public_url    = var.pretix_public_url
-    allowed_hosts = var.pretix_allowed_hosts
+    public_url    = var.public_url
+    allowed_hosts = var.allowed_hosts
   }))
 }
 
@@ -50,8 +50,8 @@ resource "aws_autoscaling_group" "app" {
   min_size                  = 0
   max_size                  = 4
   desired_capacity          = 0
-  vpc_zone_identifier       = [for s in aws_subnet.app : s.id]
-  target_group_arns         = [aws_lb_target_group.app.arn]
+  vpc_zone_identifier       = var.subnet_ids
+  target_group_arns         = [var.target_group_arn]
   health_check_type         = "ELB"
   health_check_grace_period = 600
   default_cooldown          = 300
