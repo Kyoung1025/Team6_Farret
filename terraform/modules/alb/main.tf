@@ -1,4 +1,4 @@
-# AWS 구축 가이드 7번(ALB)을 코드로 옮긴 것. WAF는 별도로 다룬다
+# AWS 구축 가이드 7번(ALB, WAF)을 코드로 옮긴 것
 
 # --- 대상 그룹: ASG가 서버를 넣고 뺀다 ---
 
@@ -60,4 +60,72 @@ resource "aws_lb_listener" "http" {
       }
     }
   }
+}
+
+# --- WAF: ALB 앞에서 흔한 공격 패턴을 검사한다 ---
+# 지금은 두 규칙 모두 Count(기록만, 차단 안 함)
+
+resource "aws_wafv2_web_acl" "main" {
+  name        = "${var.name_prefix}-waf"
+  description = "${var.name_prefix}-waf"
+  scope       = "REGIONAL"
+
+  default_action {
+    allow {}
+  }
+
+  rule {
+    name     = "AWS-AWSManagedRulesCommonRuleSet"
+    priority = 0
+
+    override_action {
+      count {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        vendor_name = "AWS"
+        name        = "AWSManagedRulesCommonRuleSet"
+      }
+    }
+
+    visibility_config {
+      sampled_requests_enabled   = true
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesCommonRuleSet"
+    }
+  }
+
+  rule {
+    name     = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
+    priority = 1
+
+    override_action {
+      count {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        vendor_name = "AWS"
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+      }
+    }
+
+    visibility_config {
+      sampled_requests_enabled   = true
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
+    }
+  }
+
+  visibility_config {
+    sampled_requests_enabled   = true
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${var.name_prefix}-waf"
+  }
+}
+
+resource "aws_wafv2_web_acl_association" "alb" {
+  resource_arn = aws_lb.app.arn
+  web_acl_arn  = aws_wafv2_web_acl.main.arn
 }

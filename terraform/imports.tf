@@ -263,3 +263,29 @@ import {
   to = module.monitoring.aws_cloudwatch_dashboard.main
   id = "pretix-demo"
 }
+
+# --- 저장소 (app 모듈) ---
+
+import {
+  to = module.app.aws_ecr_repository.pretix
+  id = "pretix"
+}
+
+import {
+  to = module.app.aws_secretsmanager_secret.db_password
+  id = "arn:aws:secretsmanager:${var.region}:${local.account_id}:secret:pretix/db-password-xos7oY"
+}
+
+# --- WAF (alb 모듈) ---
+
+# ID 형식은 "웹ACL ID/이름/범위"
+import {
+  to = module.alb.aws_wafv2_web_acl.main
+  id = "6da885ad-e174-4364-8845-9bfa418f8b38/pretix-demo-waf/REGIONAL"
+}
+
+# ID 형식은 "웹ACL ARN,ALB ARN"
+import {
+  to = module.alb.aws_wafv2_web_acl_association.alb
+  id = "arn:aws:wafv2:${var.region}:${local.account_id}:regional/webacl/pretix-demo-waf/6da885ad-e174-4364-8845-9bfa418f8b38,arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
+}

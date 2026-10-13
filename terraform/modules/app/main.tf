@@ -118,3 +118,20 @@ resource "aws_autoscaling_policy" "cpu" {
     disable_scale_in = false
   }
 }
+
+# --- 앱 서버가 쓰는 저장소 ---
+
+# pretix 컨테이너 이미지 저장소. 부팅 스크립트가 여기서 pretix:stable을 받는다
+resource "aws_ecr_repository" "pretix" {
+  name                 = "pretix"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = false
+  }
+}
+
+# DB 비밀번호 보관함. 값은 콘솔에서 넣고 코드로 관리하지 않는다 (state에 남지 않게)
+resource "aws_secretsmanager_secret" "db_password" {
+  name = "pretix/db-password"
+}

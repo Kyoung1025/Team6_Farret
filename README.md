@@ -43,11 +43,13 @@ terraform plan                    # apply 전에 반드시 plan 확인
 |---|---|
 | `main.tf` | Terraform·provider 버전, S3 백엔드, 공통 태그, 모듈 호출 |
 | `variables.tf` | 리전, 이름 접두사, VPC·서브넷 대역, 앱 AMI 등 |
-| `outputs.tf` | ALB 주소, ASG 이름, VPC ID (`terraform output`으로 확인) |
+| `outputs.tf` | ALB 주소, WireGuard IP, ASG 이름, VPC ID (`terraform output`으로 확인) |
 | `imports.tf` | 콘솔로 만든 리소스를 코드와 연결하는 import 블록 |
 | `modules/network/` | VPC, 서브넷 4개, IGW, 라우팅 테이블, S3 엔드포인트, 보안그룹 4개 |
-| `modules/alb/` | ALB, 리스너, 대상 그룹 |
-| `modules/app/` | Launch Template, Auto Scaling 그룹, 확장 정책, 부팅 스크립트 |
+| `modules/alb/` | ALB, 리스너, 대상 그룹, WAF |
+| `modules/app/` | Launch Template, Auto Scaling 그룹, 확장 정책, 부팅 스크립트, ECR, DB 비밀번호 보관함 |
+| `modules/gateway/` | NAT 인스턴스, WireGuard 서버, 탄력적 IP, App 경로 |
+| `modules/monitoring/` | SNS 알림, 디스코드 Lambda, 알람 3개, 대시보드 |
 | `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스). 커밋한다 |
 
 
