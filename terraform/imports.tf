@@ -167,21 +167,21 @@ import {
 }
 
 # --- ALB (준용님) ---
-# ARN의 계정 ID는 main.tf의 local.account_id (로그인한 계정)에서 가져온다
+# ARN의 계정 ID는 main.tf의 data.aws_caller_identity (로그인한 계정)에서 가져온다
 
 import {
   to = module.alb.aws_lb_target_group.app
-  id = "arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:targetgroup/pretix-demo-tg/1c4e4d9e8d3fd23c"
+  id = "arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:targetgroup/pretix-demo-tg/1c4e4d9e8d3fd23c"
 }
 
 import {
   to = module.alb.aws_lb.app
-  id = "arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
+  id = "arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
 }
 
 import {
   to = module.alb.aws_lb_listener.http
-  id = "arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:listener/app/pretix-demo-alb/12db2ff2dd71b2a8/73db8926c6001b4d"
+  id = "arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:listener/app/pretix-demo-alb/12db2ff2dd71b2a8/73db8926c6001b4d"
 }
 
 # --- NAT·WireGuard (형서님) ---
@@ -221,17 +221,17 @@ import {
 
 import {
   to = module.monitoring.aws_sns_topic.alerts
-  id = "arn:aws:sns:${var.region}:${local.account_id}:${var.name_prefix}-alerts"
+  id = "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.name_prefix}-alerts"
 }
 
 import {
   to = module.monitoring.aws_sns_topic_subscription.email
-  id = "arn:aws:sns:${var.region}:${local.account_id}:${var.name_prefix}-alerts:a988c7de-bd8c-43fb-b08d-90ae7ffd4695"
+  id = "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.name_prefix}-alerts:a988c7de-bd8c-43fb-b08d-90ae7ffd4695"
 }
 
 import {
   to = module.monitoring.aws_sns_topic_subscription.discord
-  id = "arn:aws:sns:${var.region}:${local.account_id}:${var.name_prefix}-alerts:8d7e3dc4-e8cc-4313-89c4-afe4c761efdf"
+  id = "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.name_prefix}-alerts:8d7e3dc4-e8cc-4313-89c4-afe4c761efdf"
 }
 
 import {
@@ -273,7 +273,7 @@ import {
 
 import {
   to = module.app.aws_secretsmanager_secret.db_password
-  id = "arn:aws:secretsmanager:${var.region}:${local.account_id}:secret:pretix/db-password-xos7oY"
+  id = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:pretix/db-password-xos7oY"
 }
 
 # --- WAF (alb 모듈) ---
@@ -287,5 +287,5 @@ import {
 # ID 형식은 "웹ACL ARN,ALB ARN"
 import {
   to = module.alb.aws_wafv2_web_acl_association.alb
-  id = "arn:aws:wafv2:${var.region}:${local.account_id}:regional/webacl/pretix-demo-waf/6da885ad-e174-4364-8845-9bfa418f8b38,arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
+  id = "arn:aws:wafv2:${var.region}:${data.aws_caller_identity.current.account_id}:regional/webacl/pretix-demo-waf/6da885ad-e174-4364-8845-9bfa418f8b38,arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
 }
