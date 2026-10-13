@@ -10,6 +10,7 @@
 *.tfvars
 *.tfplan
 crash.log
+.build/
 # .terraform.lock.hcl 은 커밋한다 (팀이 같은 provider 버전을 쓰도록)
 
 # OS

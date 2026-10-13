@@ -6,6 +6,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.67" # 6.67 이상 7.0 미만
     }
+    # Lambda 코드를 zip으로 묶을 때 사용
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.8"
+    }
   }
 
   # state 파일을 팀 공용 S3 버킷에 둔다
@@ -64,13 +69,6 @@ module "app" {
   allowed_hosts     = var.pretix_allowed_hosts
 }
 
-# 로그인한 계정의 ID (import할 ALB ARN에 사용)
-data "aws_caller_identity" "current" {}
-
-locals {
-  account_id = data.aws_caller_identity.current.account_id
-}
-
 module "gateway" {
   source = "./modules/gateway"
 
@@ -83,4 +81,25 @@ module "gateway" {
   instance_profile_name = "${var.name_prefix}-infra-role"
   app_route_table_id    = module.network.app_route_table_id
   onprem_tunnel_cidr    = var.onprem_tunnel_cidr
+}
+
+module "monitoring" {
+  source = "./modules/monitoring"
+
+  name_prefix             = var.name_prefix
+  region                  = var.region
+  asg_name                = module.app.asg_name
+  alb_arn_suffix          = module.alb.arn_suffix
+  target_group_arn_suffix = module.alb.target_group_arn_suffix
+  alert_email             = var.alert_email
+  discord_webhook_url     = var.discord_webhook_url
+  lambda_role_arn         = "arn:aws:iam::${local.account_id}:role/${var.name_prefix}-lambda-alert-role"
+  lambda_source_file      = "${path.root}/../monitoring/discord-notifier/lambda_function.py"
+}
+
+# 로그인한 계정의 ID (ARN을 만들 때 사용)
+data "aws_caller_identity" "current" {}
+
+locals {
+  account_id = data.aws_caller_identity.current.account_id
 }

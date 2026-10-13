@@ -101,3 +101,17 @@ variable "onprem_tunnel_cidr" {
   type        = string
   default     = "10.10.0.0/24"
 }
+
+# --- 알림 (modules/monitoring) ---
+# 두 값 모두 terraform.tfvars(커밋 안 됨)에 둔다
+
+variable "alert_email" {
+  description = "알림을 받을 이메일"
+  type        = string
+}
+
+variable "discord_webhook_url" {
+  description = "디스코드 웹훅 URL"
+  type        = string
+  sensitive   = true # plan 출력에 값이 보이지 않게
+}

@@ -216,3 +216,50 @@ import {
   to = module.gateway.aws_route.app_onprem
   id = "rtb-06b3627064ef36902_10.10.0.0/24"
 }
+
+# --- 알림 (경현님) ---
+
+import {
+  to = module.monitoring.aws_sns_topic.alerts
+  id = "arn:aws:sns:${var.region}:${local.account_id}:${var.name_prefix}-alerts"
+}
+
+import {
+  to = module.monitoring.aws_sns_topic_subscription.email
+  id = "arn:aws:sns:${var.region}:${local.account_id}:${var.name_prefix}-alerts:a988c7de-bd8c-43fb-b08d-90ae7ffd4695"
+}
+
+import {
+  to = module.monitoring.aws_sns_topic_subscription.discord
+  id = "arn:aws:sns:${var.region}:${local.account_id}:${var.name_prefix}-alerts:8d7e3dc4-e8cc-4313-89c4-afe4c761efdf"
+}
+
+import {
+  to = module.monitoring.aws_lambda_function.discord
+  id = "pretix-demo-discord"
+}
+
+import {
+  to = module.monitoring.aws_lambda_permission.sns
+  id = "pretix-demo-discord/sns-pretix-demo-alerts"
+}
+
+import {
+  to = module.monitoring.aws_cloudwatch_metric_alarm.cpu_high
+  id = "pretix-demo-cpu-high"
+}
+
+import {
+  to = module.monitoring.aws_cloudwatch_metric_alarm.latency_high
+  id = "pretix-demo-latency-high"
+}
+
+import {
+  to = module.monitoring.aws_cloudwatch_metric_alarm.unhealthy_host
+  id = "pretix-demo-unhealthy-host"
+}
+
+import {
+  to = module.monitoring.aws_cloudwatch_dashboard.main
+  id = "pretix-demo"
+}
