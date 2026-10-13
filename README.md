@@ -26,6 +26,7 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 | `.env.example` | 환경변수 템플릿. 실제 `.env`는 커밋하지 않는다 |
 
 
+### `IaC/`
 
 | 파일 | 내용 |
 |---|---|
