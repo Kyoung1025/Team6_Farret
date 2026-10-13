@@ -183,3 +183,36 @@ import {
   to = module.alb.aws_lb_listener.http
   id = "arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:listener/app/pretix-demo-alb/12db2ff2dd71b2a8/73db8926c6001b4d"
 }
+
+# --- NAT·WireGuard (형서님) ---
+
+import {
+  to = module.gateway.aws_instance.nat
+  id = "i-02973ca3225236c2c"
+}
+
+import {
+  to = module.gateway.aws_instance.wg
+  id = "i-054e45d0f128ee4a0"
+}
+
+import {
+  to = module.gateway.aws_eip.wg
+  id = "eipalloc-068726597784aa8b2"
+}
+
+import {
+  to = module.gateway.aws_eip_association.wg
+  id = "eipassoc-0e974b07465ef7f51"
+}
+
+# 경로의 ID 형식은 "라우팅테이블ID_목적지대역"
+import {
+  to = module.gateway.aws_route.app_internet
+  id = "rtb-06b3627064ef36902_0.0.0.0/0"
+}
+
+import {
+  to = module.gateway.aws_route.app_onprem
+  id = "rtb-06b3627064ef36902_10.10.0.0/24"
+}

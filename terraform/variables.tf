@@ -87,3 +87,17 @@ variable "app_subnets" {
     c = { az = "ap-northeast-2c", cidr = "10.0.12.0/24" }
   }
 }
+
+# --- NAT·WireGuard (modules/gateway) ---
+
+variable "nat_ami_id" {
+  description = "NAT 인스턴스 AMI (Amazon Linux 2023, 서울)"
+  type        = string
+  default     = "ami-0870825cefcaafcc8"
+}
+
+variable "onprem_tunnel_cidr" {
+  description = "WireGuard 터널 대역. 온프렘 DB가 10.10.0.2"
+  type        = string
+  default     = "10.10.0.0/24"
+}

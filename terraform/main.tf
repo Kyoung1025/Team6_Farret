@@ -70,3 +70,17 @@ data "aws_caller_identity" "current" {}
 locals {
   account_id = data.aws_caller_identity.current.account_id
 }
+
+module "gateway" {
+  source = "./modules/gateway"
+
+  name_prefix           = var.name_prefix
+  subnet_id             = module.network.public_subnet_ids[0] # public-a
+  nat_ami_id            = var.nat_ami_id
+  wg_ami_id             = var.app_ami_id # 앱 EC2와 같은 Ubuntu 24.04
+  nat_security_group_id = module.network.security_group_ids["nat"]
+  wg_security_group_id  = module.network.security_group_ids["wg"]
+  instance_profile_name = "${var.name_prefix}-infra-role"
+  app_route_table_id    = module.network.app_route_table_id
+  onprem_tunnel_cidr    = var.onprem_tunnel_cidr
+}
