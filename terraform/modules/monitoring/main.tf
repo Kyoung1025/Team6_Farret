@@ -58,11 +58,10 @@ resource "aws_lambda_permission" "sns" {
 locals {
   alarm_actions = [aws_sns_topic.alerts.arn]
 
-  # 콘솔에서 만들 때 가용 영역이 ap-northeast-2a 하나로 들어갔다 (c 영역 서버는 안 잡힘)
+  # 가용 영역은 넣지 않는다. 넣으면 그 영역 서버만 보고 다른 영역 서버는 놓친다
   alb_dimensions = {
-    LoadBalancer     = var.alb_arn_suffix
-    TargetGroup      = var.target_group_arn_suffix
-    AvailabilityZone = "ap-northeast-2a"
+    LoadBalancer = var.alb_arn_suffix
+    TargetGroup  = var.target_group_arn_suffix
   }
 }
 
