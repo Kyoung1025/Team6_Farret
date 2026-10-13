@@ -75,7 +75,7 @@ variable "app_ami_snapshot_id" {
   default     = "snap-02f31e91c80bcad76"
 }
 
-# 온프렘 공인 IP가 들어가서 terraform.tfvars에 둔다
+# 온프렘 공인 IP가 들어가서 terraform.tfvars에 뒀음
 variable "pretix_public_url" {
   description = "pretix.cfg의 url (온프렘과 같은 값)"
   type        = string

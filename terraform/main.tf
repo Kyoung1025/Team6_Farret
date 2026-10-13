@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 6.67"
+      version = "~> 6.67" # 6.67 이상 7.0 미만
     }
     # Lambda zip 패키징
     archive = {
@@ -13,11 +13,12 @@ terraform {
     }
   }
 
+  # state 파일을 팀 공용 S3 버킷에 둠
   backend "s3" {
     bucket       = "pretix-demo-tfstate-994114886472"
     key          = "pretix-demo/terraform.tfstate"
     region       = "ap-northeast-2"
-    use_lockfile = true # S3 네이티브 락
+    use_lockfile = true # S3 자체 락. 두 사람이 동시에 apply하는 것을 막는다
     encrypt      = true
   }
 }
@@ -31,6 +32,8 @@ provider "aws" {
     }
   }
 }
+
+# --- 모듈 조립 ---
 
 module "network" {
   source = "./modules/network"
