@@ -147,3 +147,37 @@ import {
   to = aws_vpc_security_group_egress_rule.all["wg"]
   id = "sgr-06f1090350ef347ff"
 }
+
+# --- 앱 EC2 (준용님) ---
+
+import {
+  to = aws_launch_template.app
+  id = "lt-06a1b16ee390a4f49"
+}
+
+import {
+  to = aws_autoscaling_group.app
+  id = "pretix-demo-asg"
+}
+
+import {
+  to = aws_autoscaling_policy.cpu
+  id = "pretix-demo-asg/Target Tracking Policy"
+}
+
+# --- ALB (준용님) ---
+
+import {
+  to = aws_lb_target_group.app
+  id = "arn:aws:elasticloadbalancing:ap-northeast-2:994114886472:targetgroup/pretix-demo-tg/1c4e4d9e8d3fd23c"
+}
+
+import {
+  to = aws_lb.app
+  id = "arn:aws:elasticloadbalancing:ap-northeast-2:994114886472:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
+}
+
+import {
+  to = aws_lb_listener.http
+  id = "arn:aws:elasticloadbalancing:ap-northeast-2:994114886472:listener/app/pretix-demo-alb/12db2ff2dd71b2a8/73db8926c6001b4d"
+}
