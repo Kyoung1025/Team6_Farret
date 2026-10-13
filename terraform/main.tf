@@ -8,7 +8,7 @@ terraform {
     }
   }
 
-  # state 파일을 팀 공용 S3 버킷에 둔다 
+  # state 파일을 팀 공용 S3 버킷에 둔다
   backend "s3" {
     bucket       = "pretix-demo-tfstate-994114886472"
     key          = "pretix-demo/terraform.tfstate"
@@ -62,4 +62,11 @@ module "app" {
   target_group_arn  = module.alb.target_group_arn
   public_url        = var.pretix_public_url
   allowed_hosts     = var.pretix_allowed_hosts
+}
+
+# 로그인한 계정의 ID (import할 ALB ARN에 사용)
+data "aws_caller_identity" "current" {}
+
+locals {
+  account_id = data.aws_caller_identity.current.account_id
 }

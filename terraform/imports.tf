@@ -167,18 +167,19 @@ import {
 }
 
 # --- ALB (준용님) ---
+# ARN의 계정 ID는 main.tf의 local.account_id (로그인한 계정)에서 가져온다
 
 import {
   to = module.alb.aws_lb_target_group.app
-  id = "arn:aws:elasticloadbalancing:ap-northeast-2:994114886472:targetgroup/pretix-demo-tg/1c4e4d9e8d3fd23c"
+  id = "arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:targetgroup/pretix-demo-tg/1c4e4d9e8d3fd23c"
 }
 
 import {
   to = module.alb.aws_lb.app
-  id = "arn:aws:elasticloadbalancing:ap-northeast-2:994114886472:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
+  id = "arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
 }
 
 import {
   to = module.alb.aws_lb_listener.http
-  id = "arn:aws:elasticloadbalancing:ap-northeast-2:994114886472:listener/app/pretix-demo-alb/12db2ff2dd71b2a8/73db8926c6001b4d"
+  id = "arn:aws:elasticloadbalancing:${var.region}:${local.account_id}:listener/app/pretix-demo-alb/12db2ff2dd71b2a8/73db8926c6001b4d"
 }
