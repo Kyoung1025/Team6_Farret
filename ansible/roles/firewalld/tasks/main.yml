@@ -1,0 +1,39 @@
+# firewalld를 바꾸면 Docker iptables 규칙이 사라질 수 있다
+# 실행 후 docker ps, nc -zv 10.10.0.2 5432 확인. 끊기면 systemctl restart docker
+
+- name: firewalld 기동
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: SSH는 관리자 대역만
+  ansible.posix.firewalld:
+    rich_rule: 'rule family="ipv4" source address="{{ admin_cidr }}" service name="ssh" accept'
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: HTTP
+  ansible.posix.firewalld:
+    port: 80/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: wg0을 trusted 존에
+  ansible.posix.firewalld:
+    zone: trusted
+    interface: wg0
+    permanent: true
+    immediate: true
+    state: enabled
+
+- name: k3s 대역을 trusted 존에
+  ansible.posix.firewalld:
+    zone: trusted
+    source: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ k3s_cidrs }}"

@@ -1,0 +1,32 @@
+- name: 기본 패키지
+  ansible.builtin.dnf:
+    name: [curl, tar, unzip, chrony, python3, nmap-ncat]
+    state: present
+
+- name: 시간 동기화
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
+
+- name: SELinux 상태 확인
+  ansible.builtin.command: getenforce
+  register: selinux_state
+  changed_when: false
+
+- name: SELinux 상태 출력
+  ansible.builtin.debug:
+    msg: "SELinux: {{ selinux_state.stdout }}"
+
+# ECR 토큰(ecr_pull), S3 백업(backup)에 사용. 자격 증명은 수동
+- name: AWS CLI 내려받기
+  ansible.builtin.unarchive:
+    src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp
+    remote_src: true
+    creates: /usr/local/bin/aws
+
+- name: AWS CLI 설치
+  ansible.builtin.command: /tmp/aws/install
+  args:
+    creates: /usr/local/bin/aws

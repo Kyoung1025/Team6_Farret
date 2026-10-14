@@ -1,0 +1,2 @@
+aws_region: ap-northeast-2
+ecr_profile: ecr-pull   # VM에 수동으로 설정하는 AWS CLI 프로파일
