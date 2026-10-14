@@ -286,3 +286,8 @@ import {
   to = module.alb.aws_wafv2_web_acl_association.alb
   id = "arn:aws:wafv2:${var.region}:${data.aws_caller_identity.current.account_id}:regional/webacl/pretix-demo-waf/6da885ad-e174-4364-8845-9bfa418f8b38,arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
 }
+
+import {
+  to = module.monitoring.aws_cloudwatch_log_group.discord
+  id = "/aws/lambda/pretix-demo-discord"
+}

@@ -22,6 +22,11 @@ data "archive_file" "discord" {
   output_path = "${path.module}/.build/discord-notifier.zip"
 }
 
+resource "aws_cloudwatch_log_group" "discord" {
+  name              = "/aws/lambda/${var.name_prefix}-discord"
+  retention_in_days = var.log_retention_days
+}
+
 resource "aws_lambda_function" "discord" {
   function_name    = "${var.name_prefix}-discord"
   role             = var.lambda_role_arn

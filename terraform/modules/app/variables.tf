@@ -42,3 +42,20 @@ variable "allowed_hosts" {
   description = "pretix.cfg의 hosts"
   type        = string
 }
+
+variable "enable_scheduled_scaling" {
+  description = "예약 스케일링 사용 여부"
+  type        = bool
+  default     = false
+}
+
+variable "scaling_schedules" {
+  description = "예약 스케일링 (recurrence는 cron, Asia/Seoul 기준)"
+  type = map(object({
+    recurrence       = string
+    min_size         = number
+    max_size         = number
+    desired_capacity = number
+  }))
+  default = {}
+}

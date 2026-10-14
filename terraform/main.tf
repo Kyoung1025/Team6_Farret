@@ -67,6 +67,9 @@ module "app" {
   target_group_arn  = module.alb.target_group_arn
   public_url        = var.pretix_public_url
   allowed_hosts     = var.pretix_allowed_hosts
+
+  enable_scheduled_scaling = var.enable_scheduled_scaling
+  scaling_schedules        = var.scaling_schedules
 }
 
 module "gateway" {

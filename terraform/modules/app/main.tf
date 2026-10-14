@@ -90,9 +90,9 @@ resource "aws_autoscaling_group" "app" {
     "WarmPoolTerminatingCapacity", "WarmPoolTerminatingRetainedCapacity",
   ]
 
-  # 확장 정책이 조정하는 값
+  # 확장 정책, 예약 스케일링이 조정하는 값
   lifecycle {
-    ignore_changes = [desired_capacity]
+    ignore_changes = [desired_capacity, min_size]
   }
 }
 
@@ -125,4 +125,17 @@ resource "aws_ecr_repository" "pretix" {
 # 값은 콘솔에서 관리 (state에 남지 않게)
 resource "aws_secretsmanager_secret" "db_password" {
   name = "pretix/db-password"
+}
+
+# 원서 마감 예약 스케일링. enable_scheduled_scaling이 false면 만들지 않음
+resource "aws_autoscaling_schedule" "deadline" {
+  for_each = var.enable_scheduled_scaling ? var.scaling_schedules : {}
+
+  scheduled_action_name  = "${var.name_prefix}-${each.key}"
+  autoscaling_group_name = aws_autoscaling_group.app.name
+  recurrence             = each.value.recurrence
+  time_zone              = "Asia/Seoul"
+  min_size               = each.value.min_size
+  max_size               = each.value.max_size
+  desired_capacity       = each.value.desired_capacity
 }

@@ -43,3 +43,9 @@ variable "lambda_source_file" {
   description = "Lambda 코드 파일 경로"
   type        = string
 }
+
+variable "log_retention_days" {
+  description = "Lambda 로그 보관 기간 (일)"
+  type        = number
+  default     = 14
+}

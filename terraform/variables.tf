@@ -112,3 +112,27 @@ variable "discord_webhook_url" {
   type        = string
   sensitive   = true
 }
+
+# --- scheduled scaling ---
+
+variable "enable_scheduled_scaling" {
+  description = "원서 마감 예약 스케일링 사용 여부"
+  type        = bool
+  default     = false
+}
+
+# 기본값: 10/29 17:15 예열, 17:30 피크, 18:10 원복
+variable "scaling_schedules" {
+  description = "예약 스케일링 (cron: 분 시 일 월 요일)"
+  type = map(object({
+    recurrence       = string
+    min_size         = number
+    max_size         = number
+    desired_capacity = number
+  }))
+  default = {
+    prewarm = { recurrence = "15 17 29 10 *", min_size = 1, max_size = 4, desired_capacity = 2 }
+    peak    = { recurrence = "30 17 29 10 *", min_size = 2, max_size = 4, desired_capacity = 4 }
+    restore = { recurrence = "10 18 29 10 *", min_size = 0, max_size = 4, desired_capacity = 0 }
+  }
+}
