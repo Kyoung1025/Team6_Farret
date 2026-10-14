@@ -1,24 +1,14 @@
-# 저장소 구조와 규칙
-
-하나의 저장소에 두 도구를 함께 둔다. 이름은 예시다.
+# ansible
 
 ```
-pretix-infra/
-├─ ansible/
-│  ├─ ansible.cfg
-│  ├─ requirements.yml            # ansible.posix 등 collection
-│  ├─ inventory/hosts.yml
-│  ├─ group_vars/all/vars.yml     # 비밀 아닌 값
-│  ├─ group_vars/all/vault.yml    # ansible-vault로 암호화
-│  ├─ site.yml
-│  └─ roles/{common,docker,wireguard,firewalld,db_stack,k3s,k8s_app,exporters,backup}/
-├─ terraform/
-│  ├─ bootstrap/                  # state 버킷 (처음 한 번)
-│  ├─ persistent/                 # EIP, ECR, 시크릿 같은 지우지 않는 것
-│  ├─ envs/demo/                  # main.tf, variables.tf, outputs.tf, backend.tf
-│  └─ modules/{network,edge,iam,compute,alb,waf,observability,backup}/
-├─ docs/automation-boundary.md
-└─ .github/workflows/ci.yml
+ansible/
+├─ ansible.cfg
+├─ requirements.yml            # ansible.posix 등 collection
+├─ inventory/hosts.yml
+├─ group_vars/all/vars.yml     # 비밀 아닌 값
+├─ group_vars/all/vault.yml    # ansible-vault로 암호화
+├─ site.yml
+└─ roles/{common,docker,wireguard,firewalld,db_stack,k3s,k8s_app,exporters,backup}/
 ```
 
 ## 규칙
