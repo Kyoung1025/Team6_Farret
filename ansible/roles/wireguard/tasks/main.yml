@@ -1,4 +1,4 @@
-# 터널 위에서 실행 중이다. 설정이 바뀌어도 재시작하지 않고 wg syncconf로 반영 (handlers)
+# 재시작 대신 wg syncconf로 반영 (SSH 유지)
 
 - name: WireGuard 설치
   ansible.builtin.dnf:

@@ -1,2 +1,2 @@
-# true면 redis, pretix, nginx, exporter에 legacy 프로파일을 붙여 평소 up -d가 DB만 건드리게 한다 (가이드 ⑧-5 ①)
+# redis, pretix, nginx, exporter를 legacy 프로파일로 (가이드 ⑧-5)
 legacy_profile: true

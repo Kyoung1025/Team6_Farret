@@ -3,7 +3,7 @@ backup_metric_namespace: pretix/Backup
 backup_metric_name: BackupSuccess
 backup_script: "{{ app_home }}/backup.sh"
 
-# 업로드 파일을 어디서 받을지. k3s 전환 뒤 k3s로 바꾼다 (가이드 ⑧-7)
+# docker 또는 k3s. 전환 뒤 k3s로 (가이드 ⑧-7)
 pretix_data_from: docker
-pretix_data_volume: stack_pretix-data   # compose가 실제로 쓰는 볼륨 (stack_pretix_data는 비어 있음)
+pretix_data_volume: stack_pretix-data   # 실제 쓰는 볼륨 (stack_pretix_data 아님)
 kubeconfig_path: /etc/rancher/k3s/k3s.yaml

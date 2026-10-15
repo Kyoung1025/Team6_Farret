@@ -1,4 +1,4 @@
-# 적용 순서 redis → pretix → nginx (nginx는 시작할 때 pretix와 ALB 이름을 찾는다)
+# redis → pretix → nginx 순서 (nginx가 시작할 때 pretix를 찾음)
 
 - name: k8s 폴더
   ansible.builtin.file:
@@ -7,7 +7,7 @@
     owner: "{{ app_user }}"
     mode: "0750"
 
-# pretix.cfg는 VM의 원본에서 DB 주소만 10.10.0.2로 바꿔 Secret으로 만든다
+# 원본 pretix.cfg에서 host=db만 10.10.0.2로
 - name: pretix.cfg 원본 읽기
   ansible.builtin.slurp:
     src: "{{ pretix_cfg_src }}"

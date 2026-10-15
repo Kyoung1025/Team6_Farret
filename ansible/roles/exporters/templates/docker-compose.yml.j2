@@ -1,4 +1,4 @@
-# node_exporter는 systemd로 돈다. 컨테이너로도 띄우면 9100 충돌
+# node_exporter는 systemd로 돌림 (컨테이너와 9100 충돌)
 services:
   cadvisor:
     image: ghcr.io/google/cadvisor:{{ cadvisor_version }}

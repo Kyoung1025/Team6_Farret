@@ -1,6 +1,6 @@
 # 비밀은 vault.yml (ansible-vault create group_vars/all/vault.yml)
 
-# 온프렘 서비스는 root 계정에서 운영 중 (/root/stack, /root/backup.sh)
+# root 계정에서 운영 (/root/stack)
 app_user: root
 app_home: /root
 stack_dir: /root/stack

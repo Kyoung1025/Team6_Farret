@@ -1,5 +1,4 @@
-# DB는 compose에 남김 (AWS 앱이 10.10.0.2:5432로 접속)
-# role은 db만 올린다. legacy 서비스(redis, pretix, nginx, exporter)는 건드리지 않는다
+# DB만 올리고 legacy 서비스는 건드리지 않음
 
 - name: stack 폴더
   ansible.builtin.file:

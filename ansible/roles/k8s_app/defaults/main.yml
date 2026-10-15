@@ -6,7 +6,7 @@ pretix_data_size: 5Gi        # 지금 볼륨은 약 23MB
 pretix_cpu_limit: 500m       # compose의 cpus: "0.5"
 
 alb_dns: pretix-demo-alb-807412016.ap-northeast-2.elb.amazonaws.com
-nginx_max_conns: 10          # 지금 nginx.conf와 같게. 한계 측정 후 조정
+nginx_max_conns: 10          # 한계 측정 후 조정
 nginx_alb_backup: true       # 2막에서는 false
 exporter_version: "1.3.0"    # 지금 compose의 nginx-prometheus-exporter
 nginx_service_type: ClusterIP   # 전환 뒤 LoadBalancer

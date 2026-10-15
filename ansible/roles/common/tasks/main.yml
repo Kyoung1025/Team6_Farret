@@ -18,7 +18,7 @@
   ansible.builtin.debug:
     msg: "SELinux: {{ selinux_state.stdout }}"
 
-# ECR 토큰(ecr_pull), S3 백업(backup)에 사용. 자격 증명은 수동
+# ecr_pull, backup에서 사용
 - name: AWS CLI 내려받기
   ansible.builtin.unarchive:
     src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
