@@ -32,7 +32,7 @@
     path: "/home/{{ ansible_user }}/.bashrc"
     line: "export KUBECONFIG=$HOME/.kube/config"
 
-# sudo는 /usr/local/bin을 PATH에서 빼서 k3s는 전체 경로로 부른다
+# sudo PATH에 /usr/local/bin이 없어 전체 경로로 호출
 - name: 노드 Ready 대기
   ansible.builtin.command: /usr/local/bin/k3s kubectl wait --for=condition=Ready node --all --timeout=120s
   changed_when: false
