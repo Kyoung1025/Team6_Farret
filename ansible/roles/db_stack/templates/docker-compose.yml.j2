@@ -20,6 +20,7 @@ services:
 
   pretix:
     image: pretix/standalone:stable
+    cpus: "0.5"
     restart: unless-stopped
     depends_on:
       - db
