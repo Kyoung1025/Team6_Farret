@@ -1,6 +1,0 @@
-# ConfigMap·Secret 변경은 재시작해야 반영됨
-- name: restart pretix
-  ansible.builtin.command: /usr/local/bin/k3s kubectl -n pretix rollout restart deploy/pretix
-
-- name: restart nginx
-  ansible.builtin.command: /usr/local/bin/k3s kubectl -n pretix rollout restart deploy/nginx

@@ -4,6 +4,8 @@ db_host: 10.10.0.2
 
 pretix_data_size: 5Gi        # 지금 볼륨은 약 23MB
 pretix_cpu_limit: 500m       # compose의 cpus: "0.5"
+pretix_mem_request: 512Mi    # docker pretix 실사용 약 580MiB
+pretix_mem_limit: 1Gi        # 넘으면 pretix pod만 재시작 (DB 보호)
 
 alb_dns: pretix-demo-alb-807412016.ap-northeast-2.elb.amazonaws.com
 nginx_max_conns: 10          # 한계 측정 후 조정

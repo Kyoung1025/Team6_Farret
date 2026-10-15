@@ -24,7 +24,6 @@
   register: pretix_cfg_secret
   changed_when: "'unchanged' not in pretix_cfg_secret.stdout"
   no_log: true
-  notify: restart pretix
 
 - name: redis, pretix 매니페스트 배치
   ansible.builtin.template:
@@ -54,11 +53,18 @@
 - name: nginx 적용 (바뀌었을 때만)
   ansible.builtin.command: "/usr/local/bin/k3s kubectl apply -f {{ k8s_dir }}/nginx.yaml"
   when: nginx_manifest.changed
-  notify: restart nginx
+  register: nginx_apply
   tags: [nginx]
 
-- name: 핸들러 먼저 실행 (재시작이 있으면 아래 대기에 반영)
-  ansible.builtin.meta: flush_handlers
+# 처음 만들 때(created)는 재시작하지 않고, 기존 설정이 바뀐 경우(configured)만 재시작
+- name: pretix 재시작 (pretix.cfg가 바뀐 경우)
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n pretix rollout restart deploy/pretix
+  when: "'configured' in (pretix_cfg_secret.stdout | default(''))"
+
+- name: nginx 재시작 (ConfigMap이 바뀐 경우)
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n pretix rollout restart deploy/nginx
+  when: nginx_apply is changed and 'configmap/nginx-conf configured' in nginx_apply.stdout
+  tags: [nginx]
 
 - name: redis, pretix 롤아웃 대기
   ansible.builtin.command: "/usr/local/bin/k3s kubectl -n pretix rollout status deploy/{{ item }} --timeout=180s"

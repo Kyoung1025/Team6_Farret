@@ -34,8 +34,11 @@ spec:
           ports:
             - containerPort: 80
           resources:
+            requests:
+              memory: "{{ pretix_mem_request }}"
             limits:
               cpu: "{{ pretix_cpu_limit }}"
+              memory: "{{ pretix_mem_limit }}"
           readinessProbe:
             tcpSocket: { port: 80 }
             initialDelaySeconds: 30
