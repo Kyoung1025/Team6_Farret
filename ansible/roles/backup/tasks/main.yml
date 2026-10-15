@@ -1,0 +1,33 @@
+# AWS 자격 증명(default 프로파일)은 VM에 수동 설정
+
+- name: cron 데몬
+  ansible.builtin.dnf:
+    name: cronie
+    state: present
+
+- name: crond 기동
+  ansible.builtin.service:
+    name: crond
+    state: started
+    enabled: true
+
+- name: backup.sh 배치
+  ansible.builtin.template:
+    src: backup.sh.j2
+    dest: "{{ backup_script }}"
+    owner: "{{ app_user }}"
+    mode: "0750"
+
+# 손으로 등록한 기존 줄을 지우고 Ansible 관리 줄로 바꾼다 (중복 실행 방지)
+- name: 기존 수동 cron 줄 제거
+  ansible.builtin.lineinfile:
+    path: "/var/spool/cron/{{ app_user }}"
+    regexp: '^0 \* \* \* \* {{ backup_script | regex_escape }} '
+    state: absent
+
+- name: 매시간 백업
+  ansible.builtin.cron:
+    name: pretix-backup
+    user: "{{ app_user }}"
+    minute: "0"
+    job: "{{ backup_script }} >> {{ app_home }}/backup.log 2>&1"

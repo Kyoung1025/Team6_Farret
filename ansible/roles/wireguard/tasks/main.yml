@@ -1,0 +1,43 @@
+# 터널 위에서 실행 중이다. 설정이 바뀌어도 재시작하지 않고 wg syncconf로 반영 (handlers)
+
+- name: WireGuard 설치
+  ansible.builtin.dnf:
+    name: wireguard-tools
+    state: present
+
+- name: 키 생성 (없을 때만)
+  ansible.builtin.shell: |
+    umask 077
+    wg genkey | tee /etc/wireguard/private.key | wg pubkey > /etc/wireguard/public.key
+  args:
+    creates: /etc/wireguard/private.key
+
+- name: 비밀 키 읽기
+  ansible.builtin.slurp:
+    src: /etc/wireguard/private.key
+  register: wg_priv
+  no_log: true
+
+- name: wg0.conf 배치
+  ansible.builtin.template:
+    src: wg0.conf.j2
+    dest: /etc/wireguard/wg0.conf
+    owner: root
+    mode: "0600"
+  no_log: true
+  notify: sync wg
+
+- name: wg-quick@wg0 활성화
+  ansible.builtin.service:
+    name: wg-quick@wg0
+    state: started
+    enabled: true
+
+- name: 공개 키 (허브 peer 등록용)
+  ansible.builtin.command: cat /etc/wireguard/public.key
+  register: wg_pub
+  changed_when: false
+
+- name: 공개 키 출력
+  ansible.builtin.debug:
+    var: wg_pub.stdout

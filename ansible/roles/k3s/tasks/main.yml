@@ -24,7 +24,9 @@
     remote_src: true
     owner: "{{ ansible_user }}"
     mode: "0600"
+  when: not ansible_check_mode   # 미리 보기 때는 k3s가 아직 없음
 
 - name: 노드 Ready 대기
   ansible.builtin.command: k3s kubectl wait --for=condition=Ready node --all --timeout=120s
   changed_when: false
+  when: not ansible_check_mode

@@ -1,12 +1,12 @@
-k8s_dir: "/home/{{ ansible_user }}/k8s"
-pretix_cfg_src: "/home/{{ ansible_user }}/stack/pretix.cfg"   # compose가 쓰는 원본
+k8s_dir: "{{ app_home }}/k8s"
+pretix_cfg_src: "{{ stack_dir }}/pretix.cfg"   # compose가 쓰는 원본
 db_host: 10.10.0.2
 
-pretix_data_size: 5Gi        # 기존 볼륨 크기 보고 조정 (docker system df -v)
+pretix_data_size: 5Gi        # 지금 볼륨은 약 23MB
 pretix_cpu_limit: 500m       # compose의 cpus: "0.5"
 
 alb_dns: pretix-demo-alb-807412016.ap-northeast-2.elb.amazonaws.com
-nginx_max_conns: 15          # 한계 측정 후 조정
+nginx_max_conns: 10          # 지금 nginx.conf와 같게. 한계 측정 후 조정
 nginx_alb_backup: true       # 2막에서는 false
 exporter_version: "1.3.0"    # 지금 compose의 nginx-prometheus-exporter
 nginx_service_type: ClusterIP   # 전환 뒤 LoadBalancer

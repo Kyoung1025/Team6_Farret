@@ -1,0 +1,11 @@
+# 비밀은 vault.yml (ansible-vault create group_vars/all/vault.yml)
+
+# 온프렘 서비스는 root 계정에서 운영 중 (/root/stack, /root/backup.sh)
+app_user: root
+app_home: /root
+stack_dir: /root/stack
+
+aws_region: ap-northeast-2
+pretix_image: 994114886472.dkr.ecr.ap-northeast-2.amazonaws.com/pretix@sha256:aad860a49a1e3307e7bfb9ae3b2dc44714269d4706a2d04ac841299405758717
+
+db_password: "{{ vault_db_password }}"

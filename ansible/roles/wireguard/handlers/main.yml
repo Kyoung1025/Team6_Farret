@@ -1,0 +1,5 @@
+# 인터페이스를 내리지 않아서 SSH가 끊기지 않는다
+- name: sync wg
+  ansible.builtin.shell: wg syncconf wg0 <(wg-quick strip wg0)
+  args:
+    executable: /bin/bash
