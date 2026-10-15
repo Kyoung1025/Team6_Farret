@@ -1,7 +1,7 @@
 # ECR 토큰은 12시간 유효. 6시간마다 Secret 갱신
 
 - name: namespace pretix (없을 때만)
-  ansible.builtin.shell: k3s kubectl create namespace pretix --dry-run=client -o yaml | k3s kubectl apply -f -
+  ansible.builtin.shell: /usr/local/bin/k3s kubectl create namespace pretix --dry-run=client -o yaml | /usr/local/bin/k3s kubectl apply -f -
   register: ns
   changed_when: "'created' in ns.stdout"
 
@@ -28,7 +28,7 @@
     job: "{{ app_home }}/k8s/ecr-secret.sh >> {{ app_home }}/ecr-secret.log 2>&1"
 
 - name: ecr-pull Secret 확인
-  ansible.builtin.command: k3s kubectl -n pretix get secret ecr-pull
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n pretix get secret ecr-pull
   register: ecr_secret
   failed_when: false
   changed_when: false

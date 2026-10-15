@@ -16,9 +16,9 @@
 
 - name: pretix-cfg Secret 적용
   ansible.builtin.shell: >
-    k3s kubectl create secret generic pretix-cfg -n pretix
+    /usr/local/bin/k3s kubectl create secret generic pretix-cfg -n pretix
     --from-file=pretix.cfg=/dev/stdin --dry-run=client -o yaml
-    | k3s kubectl apply -f -
+    | /usr/local/bin/k3s kubectl apply -f -
   args:
     stdin: "{{ pretix_cfg_raw.content | b64decode | regex_replace('(?m)^host=db$', 'host=' ~ db_host) }}"
   register: pretix_cfg_secret
@@ -36,7 +36,7 @@
   register: app_manifests
 
 - name: redis, pretix 적용 (바뀐 파일만)
-  ansible.builtin.command: "k3s kubectl apply -f {{ k8s_dir }}/{{ item.item }}"
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl apply -f {{ k8s_dir }}/{{ item.item }}"
   loop: "{{ app_manifests.results }}"
   loop_control:
     label: "{{ item.item }}"
@@ -52,7 +52,7 @@
   tags: [nginx]
 
 - name: nginx 적용 (바뀌었을 때만)
-  ansible.builtin.command: "k3s kubectl apply -f {{ k8s_dir }}/nginx.yaml"
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl apply -f {{ k8s_dir }}/nginx.yaml"
   when: nginx_manifest.changed
   notify: restart nginx
   tags: [nginx]
@@ -61,11 +61,11 @@
   ansible.builtin.meta: flush_handlers
 
 - name: redis, pretix 롤아웃 대기
-  ansible.builtin.command: "k3s kubectl -n pretix rollout status deploy/{{ item }} --timeout=180s"
+  ansible.builtin.command: "/usr/local/bin/k3s kubectl -n pretix rollout status deploy/{{ item }} --timeout=180s"
   loop: [redis, pretix]
   changed_when: false
 
 - name: nginx 롤아웃 대기
-  ansible.builtin.command: k3s kubectl -n pretix rollout status deploy/nginx --timeout=180s
+  ansible.builtin.command: /usr/local/bin/k3s kubectl -n pretix rollout status deploy/nginx --timeout=180s
   changed_when: false
   tags: [nginx]
