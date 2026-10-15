@@ -37,6 +37,7 @@
   ansible.builtin.command: cat /etc/wireguard/public.key
   register: wg_pub
   changed_when: false
+  check_mode: false
 
 - name: 공개 키 출력
   ansible.builtin.debug:
