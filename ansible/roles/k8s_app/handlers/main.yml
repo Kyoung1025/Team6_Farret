@@ -1,0 +1,6 @@
+# ConfigMap·Secret은 바꿔도 파드가 다시 읽지 않아서 재시작한다
+- name: restart pretix
+  ansible.builtin.command: k3s kubectl -n pretix rollout restart deploy/pretix
+
+- name: restart nginx
+  ansible.builtin.command: k3s kubectl -n pretix rollout restart deploy/nginx

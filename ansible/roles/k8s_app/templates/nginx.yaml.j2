@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+  namespace: pretix
+data:
+  default.conf: |
+    log_format hybrid '$remote_addr [$time_local] "$request" $status '
+                      'rt=$request_time up=$upstream_addr urt=$upstream_response_time';
+    upstream pretix_pool {
+        zone pretix_zone 64k;
+        server pretix:80 max_conns={{ nginx_max_conns }};
+{% if nginx_alb_backup %}
+        server {{ alb_dns }}:80 backup;
+{% endif %}
+    }
+    server {
+        listen 80;
+        client_max_body_size 20m;
+        access_log /var/log/nginx/access.log hybrid;
+        location / {
+            proxy_pass http://pretix_pool;
+            proxy_next_upstream error timeout http_502 http_503 http_504;
+            proxy_connect_timeout 2s;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            add_header X-Served-By $upstream_addr always;
+        }
+    }
+    server {
+        listen 8082;
+        location /stub_status {
+            stub_status;
+            allow 127.0.0.1;
+            deny all;
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: pretix
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: nginx }
+  template:
+    metadata:
+      labels: { app: nginx }
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/conf.d   # subPath 쓰면 ConfigMap 수정이 반영 안 됨
+        - name: exporter
+          image: nginx/nginx-prometheus-exporter:{{ exporter_version }}
+          args: ["--nginx.scrape-uri=http://127.0.0.1:8082/stub_status"]
+          ports:
+            - containerPort: 9113
+      volumes:
+        - name: conf
+          configMap:
+            name: nginx-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: pretix
+spec:
+  type: {{ nginx_service_type }}
+{% if nginx_service_type == 'LoadBalancer' %}
+  externalTrafficPolicy: Local   # 접속자 원래 IP를 nginx 로그에 남김
+{% endif %}
+  selector: { app: nginx }
+  ports:
+    - name: http
+      port: 80
+    - name: metrics
+      port: 9113

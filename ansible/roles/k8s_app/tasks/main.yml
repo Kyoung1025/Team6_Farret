@@ -1,0 +1,71 @@
+# 적용 순서 redis → pretix → nginx (nginx는 시작할 때 pretix와 ALB 이름을 찾는다)
+
+- name: k8s 폴더
+  ansible.builtin.file:
+    path: "{{ k8s_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0750"
+
+# pretix.cfg는 VM의 원본에서 DB 주소만 10.10.0.2로 바꿔 Secret으로 만든다
+- name: pretix.cfg 원본 읽기
+  ansible.builtin.slurp:
+    src: "{{ pretix_cfg_src }}"
+  register: pretix_cfg_raw
+  no_log: true
+
+- name: pretix-cfg Secret 적용
+  ansible.builtin.shell: >
+    k3s kubectl create secret generic pretix-cfg -n pretix
+    --from-file=pretix.cfg=/dev/stdin --dry-run=client -o yaml
+    | k3s kubectl apply -f -
+  args:
+    stdin: "{{ pretix_cfg_raw.content | b64decode | regex_replace('(?m)^host=db$', 'host=' ~ db_host) }}"
+  register: pretix_cfg_secret
+  changed_when: "'unchanged' not in pretix_cfg_secret.stdout"
+  no_log: true
+  notify: restart pretix
+
+- name: redis, pretix 매니페스트 배치
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ k8s_dir }}/{{ item }}"
+    owner: "{{ ansible_user }}"
+    mode: "0640"
+  loop: [redis.yaml, pretix.yaml]
+  register: app_manifests
+
+- name: redis, pretix 적용 (바뀐 파일만)
+  ansible.builtin.command: "k3s kubectl apply -f {{ k8s_dir }}/{{ item.item }}"
+  loop: "{{ app_manifests.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.changed
+
+- name: nginx 매니페스트 배치
+  ansible.builtin.template:
+    src: nginx.yaml.j2
+    dest: "{{ k8s_dir }}/nginx.yaml"
+    owner: "{{ ansible_user }}"
+    mode: "0640"
+  register: nginx_manifest
+  tags: [nginx]
+
+- name: nginx 적용 (바뀌었을 때만)
+  ansible.builtin.command: "k3s kubectl apply -f {{ k8s_dir }}/nginx.yaml"
+  when: nginx_manifest.changed
+  notify: restart nginx
+  tags: [nginx]
+
+- name: 핸들러 먼저 실행 (재시작이 있으면 아래 대기에 반영)
+  ansible.builtin.meta: flush_handlers
+
+- name: redis, pretix 롤아웃 대기
+  ansible.builtin.command: "k3s kubectl -n pretix rollout status deploy/{{ item }} --timeout=180s"
+  loop: [redis, pretix]
+  changed_when: false
+
+- name: nginx 롤아웃 대기
+  ansible.builtin.command: k3s kubectl -n pretix rollout status deploy/nginx --timeout=180s
+  changed_when: false
+  tags: [nginx]

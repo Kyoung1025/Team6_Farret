@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pretix-data
+  namespace: pretix
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: {{ pretix_data_size }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pretix
+  namespace: pretix
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate   # PVC가 ReadWriteOnce
+  selector:
+    matchLabels: { app: pretix }
+  template:
+    metadata:
+      labels: { app: pretix }
+    spec:
+      enableServiceLinks: false
+      imagePullSecrets:
+        - name: ecr-pull
+      containers:
+        - name: pretix
+          image: {{ pretix_image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: "{{ pretix_cpu_limit }}"
+          readinessProbe:
+            tcpSocket: { port: 80 }
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 18
+          volumeMounts:
+            - name: cfg
+              mountPath: /etc/pretix/pretix.cfg
+              subPath: pretix.cfg
+              readOnly: true
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: cfg
+          secret:
+            secretName: pretix-cfg
+        - name: data
+          persistentVolumeClaim:
+            claimName: pretix-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pretix
+  namespace: pretix
+spec:
+  selector: { app: pretix }
+  ports:
+    - port: 80
