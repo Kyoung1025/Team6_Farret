@@ -136,3 +136,16 @@ variable "scaling_schedules" {
     restore = { recurrence = "10 18 29 10 *", min_size = 0, max_size = 4, desired_capacity = 0 }
   }
 }
+
+# 평소 AWS 100, 온프렘 0. 장애 때 바꿔서 apply
+variable "alb_weight_app" {
+  description = "ALB 리스너 가중치: AWS 앱"
+  type        = number
+  default     = 100
+}
+
+variable "alb_weight_onprem" {
+  description = "ALB 리스너 가중치: 온프렘"
+  type        = number
+  default     = 0
+}

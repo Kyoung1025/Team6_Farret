@@ -17,3 +17,8 @@ output "target_group_arn_suffix" {
   description = "CloudWatch 알람의 TargetGroup 차원 값"
   value       = aws_lb_target_group.app.arn_suffix
 }
+
+output "onprem_target_group_arn_suffix" {
+  description = "CloudWatch 알람의 TargetGroup 차원 값 (온프렘)"
+  value       = aws_lb_target_group.onprem.arn_suffix
+}

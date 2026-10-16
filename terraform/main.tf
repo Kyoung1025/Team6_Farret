@@ -53,6 +53,8 @@ module "alb" {
   vpc_id            = module.network.vpc_id
   subnet_ids        = module.network.public_subnet_ids
   security_group_id = module.network.security_group_ids["alb"]
+  weight_app        = var.alb_weight_app
+  weight_onprem     = var.alb_weight_onprem
 }
 
 module "app" {

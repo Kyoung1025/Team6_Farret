@@ -172,6 +172,11 @@ import {
 }
 
 import {
+  to = module.alb.aws_lb_target_group.onprem
+  id = "arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:targetgroup/pretix-onprem-tg/82dde66c5c00bac2"
+}
+
+import {
   to = module.alb.aws_lb.app
   id = "arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:loadbalancer/app/pretix-demo-alb/12db2ff2dd71b2a8"
 }
