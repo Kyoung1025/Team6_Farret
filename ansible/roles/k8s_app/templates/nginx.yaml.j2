@@ -18,6 +18,11 @@ data:
         listen 80;
         client_max_body_size 20m;
         access_log /var/log/nginx/access.log hybrid;
+        # pretix는 url에 적힌 이름으로 온 요청만 받음. ALB 헬스체크는 IP로 오므로 이름을 바꿔 넘김
+        location = /healthcheck/ {
+            proxy_pass http://pretix:80;   # backup(ALB)으로 새지 않게 직접
+            proxy_set_header Host {{ pretix_host }};
+        }
         location / {
             proxy_pass http://pretix_pool;
             proxy_next_upstream error timeout http_502 http_503 http_504;

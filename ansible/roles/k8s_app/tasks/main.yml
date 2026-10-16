@@ -13,6 +13,15 @@
     src: "{{ pretix_cfg_src }}"
   register: pretix_cfg_raw
   no_log: true
+  tags: [nginx]
+
+# nginx 헬스체크용 이름. url과 따로 관리하면 어긋나서 여기서 꺼냄
+- name: pretix.cfg url의 호스트
+  ansible.builtin.set_fact:
+    pretix_host: >-
+      {{ pretix_cfg_raw.content | b64decode
+         | regex_findall('(?m)^url\s*=\s*https?://([^/:\s]+)') | first }}
+  tags: [nginx]
 
 - name: pretix-cfg Secret 적용
   ansible.builtin.shell: >
