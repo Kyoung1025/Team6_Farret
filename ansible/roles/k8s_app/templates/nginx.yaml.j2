@@ -7,17 +7,13 @@ data:
   default.conf: |
     log_format hybrid '$remote_addr [$time_local] "$request" $status '
                       'rt=$request_time up=$upstream_addr urt=$upstream_response_time';
-    # ALB가 준 원래 프로토콜(https)을 pretix에 넘김. 직접 들어오면 $scheme
-    map $http_x_forwarded_proto $fwd_proto {
-        default $http_x_forwarded_proto;
-        ""      $scheme;
-    }
     upstream pretix_pool {
         zone pretix_zone 64k;
-        server pretix:80{% if nginx_max_conns | int > 0 %} max_conns={{ nginx_max_conns }}{% endif %};
-{% if nginx_alb_backup %}
-        server {{ alb_dns }}:80 backup;
-{% endif %}
+        server pretix:80;
+    }
+    map $http_x_forwarded_proto $fwd_proto {
+    default $http_x_forwarded_proto;
+    ""      $scheme;
     }
     server {
         listen 80;

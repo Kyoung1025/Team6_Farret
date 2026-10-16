@@ -71,10 +71,8 @@ VM 안이 아니라 제어 노드에서 돌린다.
 | `pretix_cpu_limit` | `"1"` | 0.5면 시작 중 WORKER TIMEOUT 반복 |
 | `pretix_mem_limit` | `1536Mi` | 1Gi에서 OOMKilled |
 | `nginx_service_type` | `LoadBalancer` | ClusterIP로 두면 80이 닫힌다 |
-| `nginx_alb_backup` | `true` | 지금 입구는 온프렘. ALB 입구 전환 뒤 `false` |
-| `nginx_max_conns` | `10` | 0이면 제한 없음 |
-| `pretix_url` | `""` | 비우면 원본 url. ALB 입구 전환 때 ALB 주소 |
-| `nginx_real_ip_from` | `[]` | ALB 뒤일 때 `[10.0.0.0/16, 10.42.0.0/16]` |
+| `pretix_url` | ALB 주소 | AWS 앱 url과 같게. 도메인이 생기면 `https://tickets.<도메인>` |
+| `nginx_real_ip_from` | `[10.0.0.0/16, 10.42.0.0/16]` | ALB 뒤라서 접속자 실제 IP를 X-Forwarded-For에서 |
 
 `pretix.cfg` 원본은 VM의 `/root/stack/pretix.cfg`다. 롤은 이걸 읽어 DB 주소(`host=db` → `10.10.0.2`)와 url만 바꿔 k3s Secret으로 넣는다. 원본 파일은 건드리지 않는다.
 
