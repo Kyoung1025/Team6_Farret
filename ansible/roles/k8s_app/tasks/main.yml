@@ -7,7 +7,8 @@
     owner: "{{ app_user }}"
     mode: "0750"
 
-# 원본 pretix.cfg에서 host=db만 10.10.0.2로
+# 원본 pretix.cfg에서 host=db만 10.10.0.2로.
+# pretix_url을 주면 url도 바꾸고 ALB 뒤라서 X-Forwarded-* 를 믿게 함 (원본 파일은 안 건드림)
 - name: pretix.cfg 원본 읽기
   ansible.builtin.slurp:
     src: "{{ pretix_cfg_src }}"
@@ -15,12 +16,23 @@
   no_log: true
   tags: [nginx]
 
+- name: k3s용 pretix.cfg 만들기
+  ansible.builtin.set_fact:
+    pretix_cfg_k8s: >-
+      {{ (pretix_cfg_raw.content | b64decode
+          | regex_replace('(?m)^host=db$', 'host=' ~ db_host))
+         if not pretix_url else
+         (pretix_cfg_raw.content | b64decode
+          | regex_replace('(?m)^host=db$', 'host=' ~ db_host)
+          | regex_replace('(?m)^trust_x_forwarded_(for|proto)\s*=.*\n?', '')
+          | regex_replace('(?m)^url\s*=.*$', 'url=' ~ pretix_url ~ '\ntrust_x_forwarded_for=on\ntrust_x_forwarded_proto=on')) }}
+  no_log: true
+  tags: [nginx]
+
 # nginx 헬스체크용 이름. url과 따로 관리하면 어긋나서 여기서 꺼냄
 - name: pretix.cfg url의 호스트
   ansible.builtin.set_fact:
-    pretix_host: >-
-      {{ pretix_cfg_raw.content | b64decode
-         | regex_findall('(?m)^url\s*=\s*https?://([^/:\s]+)') | first }}
+    pretix_host: "{{ pretix_cfg_k8s | regex_findall('(?m)^url\\s*=\\s*https?://([^/:\\s]+)') | first }}"
   tags: [nginx]
 
 - name: pretix-cfg Secret 적용
@@ -29,7 +41,7 @@
     --from-file=pretix.cfg=/dev/stdin --dry-run=client -o yaml
     | /usr/local/bin/k3s kubectl apply -f -
   args:
-    stdin: "{{ pretix_cfg_raw.content | b64decode | regex_replace('(?m)^host=db$', 'host=' ~ db_host) }}"
+    stdin: "{{ pretix_cfg_k8s }}"
   register: pretix_cfg_secret
   changed_when: "'unchanged' not in pretix_cfg_secret.stdout"
   no_log: true

@@ -1,6 +1,7 @@
 k8s_dir: "{{ app_home }}/k8s"
 pretix_cfg_src: "{{ stack_dir }}/pretix.cfg"   # compose가 쓰는 원본
 db_host: 10.10.0.2
+pretix_url: ""                # 비우면 원본 url 그대로. ALB 입구 전환 때 http://<ALB DNS>
 
 pretix_data_size: 5Gi        # 지금 볼륨은 약 23MB
 pretix_cpu_limit: "1"        # 0.5면 시작 중 WORKER TIMEOUT 반복
@@ -8,7 +9,8 @@ pretix_mem_request: 512Mi    # docker pretix 실사용 약 580MiB
 pretix_mem_limit: 1536Mi     # 1Gi에서 OOMKilled. 넘으면 pretix pod만 재시작 (DB 보호)
 
 alb_dns: pretix-demo-alb-807412016.ap-northeast-2.elb.amazonaws.com
-nginx_max_conns: 10          # 한계 측정 후 조정
+nginx_max_conns: 10          # 한계 측정 후 조정. 0이면 제한 없음
 nginx_alb_backup: true       # 지금 입구는 온프렘. ALB 입구 전환(가이드 6) 뒤 false
 exporter_version: "1.3.0"    # 지금 compose의 nginx-prometheus-exporter
 nginx_service_type: LoadBalancer   # 전환 뒤 값. ClusterIP로 두면 80이 닫힘
+nginx_real_ip_from: []       # ALB 뒤일 때 [10.0.0.0/16, 10.42.0.0/16]. svclb가 출발지를 10.42로 바꿈
