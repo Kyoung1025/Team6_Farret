@@ -9,5 +9,4 @@
     - { role: k3s,       tags: [k3s] }
     - { role: ecr_pull,  tags: [k3s, ecr] }     # ECR 토큰 Secret + 갱신 cron
     - { role: k8s_app,   tags: [k8s_app] }
-    - { role: exporters, tags: [exporters] }
     - { role: backup,    tags: [backup] }

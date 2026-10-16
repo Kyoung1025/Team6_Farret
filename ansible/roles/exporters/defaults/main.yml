@@ -1,3 +1,0 @@
-node_exporter_version: "1.8.2"            # 지금 버전
-cadvisor_version: "0.55.1"
-monitoring_dir: "{{ app_home }}/monitoring-agent"

@@ -36,7 +36,7 @@
 | 옛 docker 컨테이너, 이미지 삭제 | 지우면 못 되돌린다 |
 | DB 복원 | 데이터는 코드가 아니다 |
 | MFA, Budgets 알람 | 계정에 한 번 |
-| cAdvisor를 k3s에 연결 | 모니터링 방식이 정해지면 `exporters`로 옮긴다 |
+| node_exporter, cAdvisor | 모니터링 담당이 VM에서 직접 관리한다 |
 | 도메인, HTTPS | 이번 범위 밖 |
 
 ## 해 보니 (10/15~16)

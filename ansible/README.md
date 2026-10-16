@@ -10,7 +10,7 @@ ansible/
 ├─ group_vars/all/vars.yml     # 비밀 아닌 값
 ├─ group_vars/all/vault.yml    # ansible-vault로 암호화 (DB 비밀번호)
 ├─ site.yml
-└─ roles/{common,docker,wireguard,firewalld,db_stack,k3s,ecr_pull,k8s_app,exporters,backup}/
+└─ roles/{common,docker,wireguard,firewalld,db_stack,k3s,ecr_pull,k8s_app,backup}/
 ```
 
 ## 실행 전에 필요한 것
@@ -62,7 +62,6 @@ VM 안이 아니라 제어 노드에서 돌린다.
 | k3s | k3s 설치(버전 고정, traefik 끔), kubeconfig, 노드 Ready 대기 | 적용 |
 | ecr_pull | namespace `pretix`, ECR Secret, 6시간 갱신 cron | 적용 |
 | k8s_app | DB 접속 확인 → pretix.cfg Secret → redis, pretix, nginx → 바뀐 경우만 재시작 | 적용 |
-| exporters | node_exporter(systemd), cAdvisor | 미적용 (9100 충돌, 모니터링 담당과 정할 것) |
 | backup | backup.sh(DB 덤프 + PVC), 매시간 cron, S3 업로드 | 적용 |
 
 ## 주요 변수 (`roles/k8s_app/defaults/main.yml`)
