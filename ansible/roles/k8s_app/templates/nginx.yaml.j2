@@ -9,10 +9,11 @@ data:
                       'rt=$request_time up=$upstream_addr urt=$upstream_response_time';
     upstream pretix_pool {
         zone pretix_zone 64k;
-        server pretix:80{% if nginx_max_conns | int > 0 %} max_conns={{ nginx_max_conns }}{% endif %};
-{% if nginx_alb_backup %}
-        server {{ alb_dns }}:80 backup;
-{% endif %}
+        server pretix:80;
+    }
+    map $http_x_forwarded_proto $fwd_proto {
+    default $http_x_forwarded_proto;
+    ""      $scheme;
     }
     server {
         listen 80;
@@ -36,7 +37,7 @@ data:
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Proto $fwd_proto;
             add_header X-Served-By $upstream_addr always;
         }
     }
