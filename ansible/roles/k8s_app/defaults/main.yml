@@ -4,6 +4,7 @@ db_host: 10.10.0.2
 pretix_url: ""                # 비우면 원본 url 그대로. ALB 입구 전환 때 http://<ALB DNS>
 
 pretix_data_size: 5Gi        # 지금 볼륨은 약 23MB
+pretix_data_docker_volume: stack_pretix-data   # 전환 전 docker 볼륨 (migrate_data용)
 pretix_cpu_limit: "1"        # 0.5면 시작 중 WORKER TIMEOUT 반복
 pretix_mem_request: 512Mi    # docker pretix 실사용 약 580MiB
 pretix_mem_limit: 1536Mi     # 1Gi에서 OOMKilled. 넘으면 pretix pod만 재시작 (DB 보호)

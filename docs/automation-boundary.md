@@ -11,7 +11,8 @@
 | k3s 설치와 매니페스트 적용 | 자동 (Ansible) | 같은 이유 |
 | WireGuard 공개키를 AWS peer에 등록 | 수동 (알려 주고 확인) | 두 시스템을 이어 주는 신뢰 단계. Terraform 출력값과 Ansible 변수를 사람이 옮겨 적는다 |
 | AWS 정보(Elastic IP, ALB DNS, 서버 공개키)를 `vars.yml`에 반영 | 수동 (복사) | `terraform output` 값을 옮긴다 |
-| DB 데이터 복원과 `pretix-data` 복사 | 수동 | 상태(데이터)는 코드가 아니다 |
+| DB 데이터 복원 | 수동 | 상태(데이터)는 코드가 아니다 |
+| `pretix-data` 복사 (docker 볼륨 → PVC) | 자동 (Ansible, `-e migrate_data=true`일 때만) | 덮어쓰는 작업이라 실행 시점은 사람이 정한다 |
 | VM의 AWS CLI 자격 증명 설정 | 수동 | 키는 코드에 넣지 않는다 |
 | vault 비밀번호 전달 | 수동 | 저장소 밖에서 |
 | AWS 리소스 | 자동 (Terraform) | 코드와 import는 준비, 아직 apply 전 |
@@ -21,8 +22,8 @@
 | k3s 전환 시점 (docker 정지 → 80 포트 인계) | 수동 | 시간대를 정해 함께 한다. 되돌리기 판단이 필요하다 |
 | 기존 docker 컨테이너·이미지 삭제 | 수동 | 삭제는 되돌리기 어렵다. 안정 확인 후 한다 |
 | ECR 읽기 전용 키를 VM에 등록 (`aws configure --profile ecr-pull`) | 수동 | 키는 코드에 넣지 않는다. 이후 Secret 갱신은 cron(6시간)이 한다 |
-| pod → DB 접속 확인 (`select 1`) | 수동 | 전환 전 한 번만 확인하는 단계 |
-| 전환 중 nginx Service를 LoadBalancer로 바꾸기 | 수동 (`kubectl patch`) 후 코드 반영 | 바꾸는 시점은 사람이 정한다. 끝나면 `nginx_service_type`을 맞춰야 다음 실행 때 80이 닫히지 않는다 |
+| pod → DB 접속 확인 | 자동 (Ansible, `k8s_app` 첫 단계) | 안 되면 배포를 멈춘다. 따로 볼 때는 `--tags dbcheck` |
+| nginx Service를 LoadBalancer로 바꾸기 | 자동 (Ansible, `nginx_service_type`) | 이번에는 손으로 `kubectl patch` 했다가 코드에 반영했다. 다음부터는 변수로 한다 |
 | ALB 대상 그룹 헬스체크 설정 | 수동 (AWS 콘솔) | 아직 Terraform 코드에 `pretix-onprem-tg`가 없다 |
 
 ## 실제로 해 본 결과 (10/15~16)

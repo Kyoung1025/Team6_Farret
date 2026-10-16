@@ -7,6 +7,18 @@
     owner: "{{ app_user }}"
     mode: "0750"
 
+# 가이드 ⑧-3 ②. pod 대역에서 DB가 안 보이면 배포하지 않음
+- name: pod에서 DB 접속 확인
+  ansible.builtin.shell: |
+    /usr/local/bin/k3s kubectl delete pod dbcheck -n pretix --ignore-not-found --wait
+    /usr/local/bin/k3s kubectl run dbcheck -n pretix --rm -i --quiet --restart=Never \
+      --image={{ pretix_image }} \
+      --overrides='{"spec":{"imagePullSecrets":[{"name":"ecr-pull"}]}}' \
+      --command -- python3 -c "import socket; socket.create_connection(('{{ db_host }}', 5432), 5)"
+  changed_when: false
+  when: not ansible_check_mode
+  tags: [dbcheck]
+
 # 원본 pretix.cfg에서 host=db만 10.10.0.2로.
 # pretix_url을 주면 url도 바꾸고 ALB 뒤라서 X-Forwarded-* 를 믿게 함 (원본 파일은 안 건드림)
 - name: pretix.cfg 원본 읽기
@@ -96,3 +108,10 @@
   ansible.builtin.command: /usr/local/bin/k3s kubectl -n pretix rollout status deploy/nginx --timeout=180s
   changed_when: false
   tags: [nginx]
+
+# 업로드 파일을 docker 볼륨에서 PVC로 복사 (가이드 ⑧-4 ④).
+# 덮어쓰는 작업이라 -e migrate_data=true 를 줄 때만 실행 (--tags k8s_app만으로는 안 돔)
+- name: 업로드 파일 복사
+  ansible.builtin.import_tasks: migrate_data.yml
+  when: migrate_data | default(false) | bool
+  tags: [migrate_data]
