@@ -35,7 +35,8 @@ data:
             proxy_pass http://pretix_pool;
             proxy_next_upstream error timeout http_502 http_503 http_504;
             proxy_connect_timeout 2s;
-            proxy_set_header Host $host;
+{# IP로 들어와도 pretix가 400을 안 내게 url 이름으로 #}
+            proxy_set_header Host {{ pretix_host }};
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $fwd_proto;

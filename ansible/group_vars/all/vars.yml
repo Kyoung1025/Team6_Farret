@@ -6,6 +6,7 @@ app_home: /root
 stack_dir: /root/stack
 
 aws_region: ap-northeast-2
+# ECR의 stable 태그와 같은 이미지. ECR에 latest 태그는 없어서 :latest로 두면 새로 받을 때 실패함
 pretix_image: 994114886472.dkr.ecr.ap-northeast-2.amazonaws.com/pretix@sha256:aad860a49a1e3307e7bfb9ae3b2dc44714269d4706a2d04ac841299405758717
 
 db_password: "{{ vault_db_password }}"

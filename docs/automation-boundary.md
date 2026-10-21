@@ -17,7 +17,9 @@
 | 업로드 파일 복사 (docker 볼륨 → PVC) | Ansible `-e migrate_data=true` | 덮어쓰므로 시점은 사람이 정한다 |
 | 백업 (DB 덤프, PVC → S3) | Ansible `backup` + cron | 매시간 |
 | 재부팅 뒤 복구 | systemd | 10/16 재부팅 때 확인 |
-| ALB, 대상 그룹(AWS, 온프렘), 가중치 | Terraform `alb` | 가중치는 변수. 평소 AWS 100, 온프렘 0 |
+| ALB, 대상 그룹(AWS, 온프렘), 가중치 | Terraform `alb` | 평소 AWS 100, 온프렘 0. 처음 만들 때만 Terraform 값 |
+| AWS 다운 → 온프렘 전환 | CloudWatch 경보 → SNS → Lambda `failover` | 온프렘이 healthy일 때만. 10/20 시나리오 2에서 확인 |
+| WireGuard 허브 복구 | ASG 1대 + 부팅 스크립트 | 새 인스턴스가 EIP, 터널 경로를 가져감 |
 | 그 밖의 AWS 리소스 | Terraform | 코드와 import는 있음. 아직 apply 전 |
 
 ## 수동
@@ -32,6 +34,8 @@
 | 허브에 WireGuard peer 등록, VM 22 허용 | 두 시스템을 잇는 단계라 사람이 확인 |
 | AWS 값(EIP, ALB DNS, 허브 공개키)을 Ansible 변수에 옮기기 | `terraform output`을 보고 옮긴다 |
 | 전환 시점 (docker 정지 → 80 인계) | 되돌릴지 직접 판단해야하기 때문 |
+| 온프렘 → AWS 복귀 (가중치 100 : 0) | AWS가 다시 healthy 2대인지 보고 돌린다. 자동이면 왔다 갔다 할 수 있음 |
+| WireGuard 키, wg0.conf 본문 (SSM `/pretix/wg/*`) | 비밀값이라 코드에 안 넣음 |
 | 옛 docker 컨테이너, 이미지 삭제 | 지우면 못 되돌린다 |
 | DB 복원 | 데이터 = 코드 x |
 | MFA, Budgets 알람 | 계정에 한 번 |

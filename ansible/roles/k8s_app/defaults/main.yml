@@ -7,7 +7,7 @@ pretix_data_size: 5Gi        # 지금 볼륨은 약 23MB
 pretix_data_docker_volume: stack_pretix-data   # 전환 전 docker 볼륨 (migrate_data용)
 pretix_cpu_limit: "1"        # 0.5면 시작 중 WORKER TIMEOUT 반복
 pretix_mem_request: 512Mi    # docker pretix 실사용 약 580MiB
-pretix_mem_limit: 1536Mi     # 1Gi에서 OOMKilled. 넘으면 pretix pod만 재시작 (DB 보호)
+pretix_mem_limit: 2000Mi     # 1536Mi도 CPU 4개(워커 8개)에서 OOMKilled. 넘으면 pretix pod만 재시작 (DB 보호)
 
 exporter_version: "1.3.0"    # 지금 compose의 nginx-prometheus-exporter
 nginx_service_type: LoadBalancer   # 전환 뒤 값. ClusterIP로 두면 80이 닫힘
@@ -22,4 +22,4 @@ pretix_mail:
   password: "{{ vault_mail_password }}"
   tls: "on"
   ssl: "off"
-pretix_redis_sessions: true   # 로그인 세션을 redis에
+pretix_redis_sessions: false   # AWS 앱과 같게. true면 로그인 세션을 redis에

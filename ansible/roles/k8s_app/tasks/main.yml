@@ -54,14 +54,14 @@
   no_log: true
   tags: [nginx]
 
-# 세션을 redis에 둔다. [redis] 섹션이 없으면 pretix는 이 줄을 무시
+# 세션을 redis에 둘지. [redis] 섹션이 없으면 pretix는 이 줄을 무시
 - name: pretix.cfg [redis] sessions
   ansible.builtin.set_fact:
     pretix_cfg_k8s: >-
       {{ pretix_cfg_k8s
          | regex_replace('(?m)^sessions\s*=.*\n?', '')
-         | regex_replace('(?m)^\[redis\][^\n]*$', '[redis]\nsessions=true') }}
-  when: pretix_redis_sessions | bool
+         | regex_replace('(?m)^\[redis\][^\n]*$',
+                         '[redis]\nsessions=' ~ (pretix_redis_sessions | bool | ternary('true', 'false'))) }}
   no_log: true
   tags: [nginx]
 
