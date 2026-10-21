@@ -1,25 +1,12 @@
-# Farret: 마감에도 안 멈추는 하이브리드 인프라
+# Farret: 접수 마감 트래픽 폭주 대응을 위한 하이브리드 기반 프로젝트
 
 대입 원서 접수처럼 마감 직전에 접속이 몰리는 서비스를 AWS와 온프렘에 같이 올려 둔 프로젝트다. 서비스는 [pretix](https://pretix.eu)(티켓·접수 시스템)로 시연한다.
 
-- 평소에는 AWS가 받는다. 몰리면 ASG가 서버를 늘린다.
+- 평소에는 AWS가 받고, 몰리면 ASG가 서버를 늘린다.
 - AWS가 통째로 죽으면 CloudWatch 경보를 받은 Lambda가 ALB 가중치를 온프렘으로 돌린다.
 - DB는 온프렘 PostgreSQL 한 대를 양쪽이 같이 쓴다. AWS 앱은 WireGuard 터널로 붙는다.
 
-```
-                         사용자
-                           │
-                ALB (가중치 AWS 100 : 온프렘 0)
-                ├──────────────────────────┐
-                ▼                          ▼  (장애 때 0 : 100)
-     AWS ASG: nginx + pretix + redis     WireGuard 허브 (AWS, ASG 1대)
-                │                          │
-                └──── WireGuard 터널 ───────┤
-                                           ▼
-                        온프렘 VM 10.10.0.2 (Rocky)
-                        ├─ k3s: nginx → pretix → redis
-                        └─ docker: PostgreSQL ── 매시간 백업 → S3
-```
+
 
 ## 폴더
 
@@ -58,14 +45,14 @@
 
 자세한 건 `docs/automation-boundary.md`. 줄이면 이렇다.
 
-**코드로 만든다**
+**IaC**
 
 | 대상 | 도구 |
 |---|---|
 | 온프렘 VM: 패키지, Docker, WireGuard, 방화벽, DB, k3s, pretix 배포, 백업 cron | Ansible |
 | AWS: 네트워크, ALB, ASG, NAT, WireGuard 허브, 경보, 대시보드, Lambda | Terraform |
 
-**돌아가면서 알아서 한다**
+**자동화**
 
 | 상황 | 하는 것 |
 |---|---|
@@ -76,7 +63,7 @@
 | 매시 정각 | DB 덤프와 업로드 파일을 S3로 |
 | VM 재부팅 | k3s, DB, WireGuard가 다시 뜸 |
 
-**사람이 한다**
+**수동**
 
 | 대상 | 이유 |
 |---|---|
@@ -90,7 +77,7 @@
 
 | 항목 | 값 |
 |---|---|
-| 접속 주소 | `http://pretix-demo-alb-807412016.ap-northeast-2.elb.amazonaws.com` (도메인 없음) |
+| 접속 주소 | `http://pretix-demo-alb-807412016.ap-northeast-2.elb.amazonaws.com` (도메인 아직 없음) |
 | 리전 | ap-northeast-2 (서울) |
 | 온프렘 VM | 10.10.0.2 (WireGuard 주소) |
 | WireGuard 대역 | 10.10.0.0/24 |
