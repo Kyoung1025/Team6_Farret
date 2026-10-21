@@ -81,9 +81,18 @@ variable "pretix_public_url" {
   type        = string
 }
 
-variable "pretix_allowed_hosts" {
-  description = "pretix.cfg의 hosts (ALB 헬스 체크용 사설 대역 포함)"
+# 시작 템플릿 v8에 들어간 값. 쓰려면 terraform.tfvars에 넣는다
+variable "pretix_django_secret" {
+  description = "pretix.cfg [django] secret (비우면 섹션 없음)"
   type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "pretix_mail_user" {
+  description = "pretix 메일 발신 계정. 비밀번호는 Secrets Manager pretix/smtp-password"
+  type        = string
+  default     = "up041601@gmail.com"
 }
 
 # --- gateway ---
@@ -92,6 +101,12 @@ variable "nat_ami_id" {
   description = "NAT 인스턴스 AMI (Amazon Linux 2023)"
   type        = string
   default     = "ami-0870825cefcaafcc8"
+}
+
+variable "wg_ami_id" {
+  description = "WireGuard 허브 AMI (WireGuard, AWS CLI 포함)"
+  type        = string
+  default     = "ami-0eb023a7877e74a71"
 }
 
 variable "onprem_tunnel_cidr" {
@@ -137,7 +152,7 @@ variable "scaling_schedules" {
   }
 }
 
-# 평소 AWS 100, 온프렘 0. 장애 때 바꿔서 apply
+# 평소 AWS 100, 온프렘 0. 처음 만들 때만 쓰고, 이후 가중치는 failover Lambda와 사람이 바꾼다
 variable "alb_weight_app" {
   description = "ALB 리스너 가중치: AWS 앱"
   type        = number

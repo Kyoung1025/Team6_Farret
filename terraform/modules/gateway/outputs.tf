@@ -3,9 +3,9 @@ output "wg_public_ip" {
   value       = aws_eip.wg.public_ip
 }
 
-output "wg_private_ip" {
-  description = "WireGuard 서버 사설 IP"
-  value       = aws_instance.wg.private_ip
+output "wg_asg_name" {
+  description = "WireGuard 허브 ASG"
+  value       = aws_autoscaling_group.wg.name
 }
 
 output "nat_instance_id" {

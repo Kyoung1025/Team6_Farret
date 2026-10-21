@@ -3,7 +3,7 @@ set -eux
 export DEBIAN_FRONTEND=noninteractive
 REGION=${region}
 ACCOUNT=${account_id}
-PUBLIC_URL=${public_url}
+PUBLIC_URL="${public_url}"
 
 apt-get update
 apt-get install -y ca-certificates curl unzip
@@ -22,6 +22,8 @@ unzip -q /tmp/awscliv2.zip -d /tmp
 
 DB_PASSWORD=$(aws secretsmanager get-secret-value --secret-id pretix/db-password --query SecretString --output text --region $REGION)
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.$REGION.amazonaws.com
+DB_PASSWORD=$(aws secretsmanager get-secret-value --secret-id pretix/db-password --query SecretString --output text --region $REGION)
+SMTP_PASSWORD=$(aws secretsmanager get-secret-value --secret-id pretix/smtp-password --query SecretString --output text --region $REGION | tr -d '\n ')
 
 mkdir -p /opt/pretix && cd /opt/pretix
 
@@ -29,7 +31,6 @@ cat > pretix.cfg <<EOF
 [pretix]
 instance_name=Admission Demo
 url=$PUBLIC_URL
-hosts=${allowed_hosts}
 currency=KRW
 datadir=/data
 trust_x_forwarded_for=on
@@ -43,16 +44,56 @@ password=$DB_PASSWORD
 host=10.10.0.2
 
 [mail]
-from=pretix@localhost
-host=localhost
+from=${mail_user}
+host=smtp.gmail.com
+port=587
+user=${mail_user}
+password=$SMTP_PASSWORD
+tls=on
+ssl=off
 
+%{ if django_secret != "" ~}
+[django]
+secret=${django_secret}
+
+%{ endif ~}
 [redis]
 location=redis://redis:6379/0
-sessions=true
+sessions=false
 
 [celery]
 backend=redis://redis:6379/1
 broker=redis://redis:6379/2
+EOF
+
+cat > nginx.conf <<'EOF'
+events {
+    worker_connections 1024;
+}
+http {
+    server {
+        listen 80;
+
+        location = /healthcheck/ {
+            access_log off;
+            default_type text/plain;
+            return 200 "OK\n";
+        }
+
+        location / {
+            proxy_pass http://pretix:80;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+
+            proxy_connect_timeout 60s;
+            proxy_read_timeout 60s;
+            proxy_send_timeout 60s;
+            client_max_body_size 100M;
+        }
+    }
+}
 EOF
 
 cat > docker-compose.yml <<EOF
@@ -60,16 +101,28 @@ services:
   redis:
     image: redis:7
     restart: unless-stopped
+
   pretix:
     image: $ACCOUNT.dkr.ecr.$REGION.amazonaws.com/pretix:stable
     depends_on:
       - redis
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     volumes:
       - ./pretix.cfg:/etc/pretix/pretix.cfg:ro
       - pretix-data:/data
     restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - pretix
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+
 volumes:
   pretix-data:
 EOF

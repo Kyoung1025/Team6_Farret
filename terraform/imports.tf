@@ -186,7 +186,7 @@ import {
   id = "arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:listener/app/pretix-demo-alb/12db2ff2dd71b2a8/73db8926c6001b4d"
 }
 
-# --- NAT·WireGuard ---
+# --- NAT·WireGuard 허브 ---
 
 import {
   to = module.gateway.aws_instance.nat
@@ -194,29 +194,14 @@ import {
 }
 
 import {
-  to = module.gateway.aws_instance.wg
-  id = "i-054e45d0f128ee4a0"
-}
-
-import {
   to = module.gateway.aws_eip.wg
   id = "eipalloc-068726597784aa8b2"
-}
-
-import {
-  to = module.gateway.aws_eip_association.wg
-  id = "eipassoc-0e974b07465ef7f51"
 }
 
 # ID: 라우팅테이블ID_목적지
 import {
   to = module.gateway.aws_route.app_internet
   id = "rtb-06b3627064ef36902_0.0.0.0/0"
-}
-
-import {
-  to = module.gateway.aws_route.app_onprem
-  id = "rtb-06b3627064ef36902_10.10.0.0/24"
 }
 
 # --- 알림 ---
@@ -244,21 +229,6 @@ import {
 import {
   to = module.monitoring.aws_lambda_permission.sns
   id = "pretix-demo-discord/sns-pretix-demo-alerts"
-}
-
-import {
-  to = module.monitoring.aws_cloudwatch_metric_alarm.cpu_high
-  id = "pretix-demo-cpu-high"
-}
-
-import {
-  to = module.monitoring.aws_cloudwatch_metric_alarm.latency_high
-  id = "pretix-demo-latency-high"
-}
-
-import {
-  to = module.monitoring.aws_cloudwatch_metric_alarm.unhealthy_host
-  id = "pretix-demo-unhealthy-host"
 }
 
 import {
@@ -295,4 +265,120 @@ import {
 import {
   to = module.monitoring.aws_cloudwatch_log_group.discord
   id = "/aws/lambda/pretix-demo-discord"
+}
+
+# --- 10/20 추가: 콘솔/CLI로 만든 것 ---
+
+import {
+  to = module.network.aws_route.public_internet
+  id = "rtb-0b46ce0870e28a893_0.0.0.0/0"
+}
+
+import {
+  to = module.app.aws_secretsmanager_secret.smtp_password
+  id = "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:pretix/smtp-password-gVHQTc"
+}
+
+# ID: 대상그룹ARN,대상,포트,AZ
+import {
+  to = module.alb.aws_lb_target_group_attachment.onprem
+  id = "arn:aws:elasticloadbalancing:${var.region}:${data.aws_caller_identity.current.account_id}:targetgroup/pretix-onprem-tg/82dde66c5c00bac2,10.10.0.2,80,all"
+}
+
+# WireGuard 허브 (ASG)
+
+import {
+  to = module.gateway.aws_iam_role.wg
+  id = "pretix-demo-wg-role"
+}
+
+import {
+  to = module.gateway.aws_iam_policy.wg_hub
+  id = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/pretix-demo-wg-hub-policy"
+}
+
+# ID: 역할/정책ARN
+import {
+  to = module.gateway.aws_iam_role_policy_attachment.wg_hub
+  id = "pretix-demo-wg-role/arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/pretix-demo-wg-hub-policy"
+}
+
+import {
+  to = module.gateway.aws_iam_role_policy_attachment.wg_ssm
+  id = "pretix-demo-wg-role/arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+import {
+  to = module.gateway.aws_iam_instance_profile.wg
+  id = "pretix-demo-wg-role"
+}
+
+import {
+  to = module.gateway.aws_launch_template.wg
+  id = "lt-0b11afb295635e8b5"
+}
+
+import {
+  to = module.gateway.aws_autoscaling_group.wg
+  id = "pretix-demo-wg-asg"
+}
+
+# 자동 전환
+
+import {
+  to = module.monitoring.aws_iam_role.failover
+  id = "pretix-demo-failover-role"
+}
+
+import {
+  to = module.monitoring.aws_iam_role_policy_attachment.failover_logs
+  id = "pretix-demo-failover-role/arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+# ID: 역할:정책이름
+import {
+  to = module.monitoring.aws_iam_role_policy.failover
+  id = "pretix-demo-failover-role:alb-weight"
+}
+
+import {
+  to = module.monitoring.aws_lambda_function.failover
+  id = "pretix-demo-failover"
+}
+
+import {
+  to = module.monitoring.aws_cloudwatch_log_group.failover
+  id = "/aws/lambda/pretix-demo-failover"
+}
+
+import {
+  to = module.monitoring.aws_lambda_permission.failover_sns
+  id = "pretix-demo-failover/sns-alerts"
+}
+
+import {
+  to = module.monitoring.aws_sns_topic_subscription.failover
+  id = "arn:aws:sns:${var.region}:${data.aws_caller_identity.current.account_id}:${var.name_prefix}-alerts:1a90aed0-87a2-411a-a9c9-e9d67b1af586"
+}
+
+# 알람 (노션 6번)
+
+import {
+  to = module.monitoring.aws_cloudwatch_metric_alarm.aws_unhealthy
+  id = "pretix-demo-aws-unhealthy"
+}
+
+import {
+  to = module.monitoring.aws_cloudwatch_metric_alarm.alb_5xx
+  id = "pretix-demo-alb-5xx"
+}
+
+import {
+  to = module.monitoring.aws_cloudwatch_metric_alarm.target_5xx
+  id = "pretix-demo-target-5xx"
+}
+
+import {
+  to = module.monitoring.aws_cloudwatch_dashboard.loadtest
+  id = "pretix-demo-test3"
 }

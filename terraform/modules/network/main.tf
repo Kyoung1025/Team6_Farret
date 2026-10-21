@@ -34,15 +34,17 @@ resource "aws_subnet" "app" {
   tags = { Name = "${var.name_prefix}-app-${each.key}" }
 }
 
+# 경로를 안에 적으면 WireGuard 허브가 넣는 터널 경로를 apply가 지워서 따로 만든다
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
-
   tags = { Name = "${var.name_prefix}-rt-public" }
+}
+
+resource "aws_route" "public_internet" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.main.id
 }
 
 resource "aws_route_table_association" "public" {

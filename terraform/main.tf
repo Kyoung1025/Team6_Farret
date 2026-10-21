@@ -68,7 +68,8 @@ module "app" {
   security_group_id = module.network.security_group_ids["app"]
   target_group_arn  = module.alb.target_group_arn
   public_url        = var.pretix_public_url
-  allowed_hosts     = var.pretix_allowed_hosts
+  mail_user         = var.pretix_mail_user
+  django_secret     = var.pretix_django_secret
 
   enable_scheduled_scaling = var.enable_scheduled_scaling
   scaling_schedules        = var.scaling_schedules
@@ -78,13 +79,16 @@ module "gateway" {
   source = "./modules/gateway"
 
   name_prefix           = var.name_prefix
+  region                = var.region
   subnet_id             = module.network.public_subnet_ids[0] # public-a
+  public_subnet_ids     = module.network.public_subnet_ids
   nat_ami_id            = var.nat_ami_id
-  wg_ami_id             = var.app_ami_id # Ubuntu 24.04
+  wg_ami_id             = var.wg_ami_id
   nat_security_group_id = module.network.security_group_ids["nat"]
   wg_security_group_id  = module.network.security_group_ids["wg"]
   instance_profile_name = "${var.name_prefix}-infra-role"
   app_route_table_id    = module.network.app_route_table_id
+  public_route_table_id = module.network.public_route_table_id
   onprem_tunnel_cidr    = var.onprem_tunnel_cidr
 }
 
@@ -100,6 +104,13 @@ module "monitoring" {
   discord_webhook_url     = var.discord_webhook_url
   lambda_role_arn         = "arn:aws:iam::${local.account_id}:role/${var.name_prefix}-lambda-alert-role"
   lambda_source_file      = "${path.root}/../monitoring/discord-notifier/lambda_function.py"
+
+  listener_arn                   = module.alb.listener_arn
+  target_group_arn               = module.alb.target_group_arn
+  onprem_target_group_arn        = module.alb.onprem_target_group_arn
+  onprem_target_group_arn_suffix = module.alb.onprem_target_group_arn_suffix
+  waf_name                       = module.alb.waf_name
+  failover_source_file           = "${path.root}/../monitoring/failover/lambda_function.py"
 }
 
 data "aws_caller_identity" "current" {}

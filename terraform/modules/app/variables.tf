@@ -38,8 +38,15 @@ variable "public_url" {
   type        = string
 }
 
-variable "allowed_hosts" {
-  description = "pretix.cfg의 hosts"
+variable "django_secret" {
+  description = "pretix.cfg [django] secret. 서버끼리 같아야 로그인이 유지된다. 비우면 섹션을 안 넣음"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "mail_user" {
+  description = "pretix 메일 발신 계정 (Gmail SMTP)"
   type        = string
 }
 

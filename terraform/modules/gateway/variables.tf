@@ -3,9 +3,19 @@ variable "name_prefix" {
   type        = string
 }
 
-variable "subnet_id" {
-  description = "NAT·WireGuard를 둘 Public 서브넷"
+variable "region" {
+  description = "리전 (WireGuard 허브 부팅 스크립트, IAM 정책)"
   type        = string
+}
+
+variable "subnet_id" {
+  description = "NAT를 둘 Public 서브넷"
+  type        = string
+}
+
+variable "public_subnet_ids" {
+  description = "WireGuard 허브 ASG가 쓸 Public 서브넷"
+  type        = list(string)
 }
 
 variable "nat_ami_id" {
@@ -14,7 +24,7 @@ variable "nat_ami_id" {
 }
 
 variable "wg_ami_id" {
-  description = "WireGuard 서버 AMI (Ubuntu 24.04)"
+  description = "WireGuard 허브 AMI (WireGuard, AWS CLI가 깔린 이미지)"
   type        = string
 }
 
@@ -29,12 +39,17 @@ variable "wg_security_group_id" {
 }
 
 variable "instance_profile_name" {
-  description = "IAM 인스턴스 프로파일 이름"
+  description = "NAT 인스턴스의 IAM 인스턴스 프로파일"
   type        = string
 }
 
 variable "app_route_table_id" {
-  description = "경로를 추가할 App 라우팅 테이블"
+  description = "App 라우팅 테이블 (NAT 경로, 터널 경로)"
+  type        = string
+}
+
+variable "public_route_table_id" {
+  description = "Public 라우팅 테이블 (터널 경로. ALB → 온프렘 대상 그룹)"
   type        = string
 }
 

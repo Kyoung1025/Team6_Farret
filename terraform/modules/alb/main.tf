@@ -4,31 +4,32 @@ resource "aws_lb_target_group" "app" {
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
   target_type          = "instance"
-  deregistration_delay = 60
+  deregistration_delay = 30
 
-  # /healthcheck/는 DB, Redis 연결까지 확인
+  # 앱 서버의 nginx가 /healthcheck/에 바로 200을 준다 (pretix, DB는 안 봄)
   health_check {
     path                = "/healthcheck/"
-    matcher             = "200-399"
+    matcher             = "200"
     protocol            = "HTTP"
     port                = "traffic-port"
-    interval            = 15
-    timeout             = 5
+    interval            = 5
+    timeout             = 4
     healthy_threshold   = 2
-    unhealthy_threshold = 3
+    unhealthy_threshold = 2
   }
 
-  # 앱 서버마다 Redis가 따로라서 세션 고정
+  # 세션 고정은 리스너(대상 그룹 단위)에서 한다
   stickiness {
     type            = "lb_cookie"
     cookie_duration = 3600
-    enabled         = true
+    enabled         = false
   }
 }
 
 # 온프렘 (WireGuard 터널 너머 10.10.0.2:80, k3s nginx). 평소 가중치 0, 장애 때 올린다
+# 이름은 콘솔에서 만든 그대로 (바꾸면 새로 만들어짐)
 resource "aws_lb_target_group" "onprem" {
-  name        = "${var.name_prefix}-onprem-tg"
+  name        = "pretix-onprem-tg"
   port        = 80
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -44,6 +45,12 @@ resource "aws_lb_target_group" "onprem" {
     timeout             = 5
     healthy_threshold   = 2
     unhealthy_threshold = 2
+  }
+
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 86400
+    enabled         = false
   }
 }
 
@@ -69,7 +76,8 @@ resource "aws_lb_listener" "http" {
   port              = 80
   protocol          = "HTTP"
 
-  # 가중치로 AWS / 온프렘 비율을 정한다. 리스너 stickiness off
+  # 가중치로 AWS / 온프렘 비율을 정한다.
+  # AWS 앱은 서버마다 Redis가 따로라서 대상 그룹 단위로 1시간 세션 고정
   default_action {
     type = "forward"
     forward {
@@ -82,10 +90,16 @@ resource "aws_lb_listener" "http" {
         weight = var.weight_onprem
       }
       stickiness {
-        enabled  = false
+        enabled  = true
         duration = 3600
       }
     }
+  }
+
+  # 장애 때 failover Lambda가 가중치를 0:100으로 바꾸고, 복귀는 사람이 한다.
+  # apply가 그걸 되돌리지 않게 처음 만들 때만 위 값을 쓴다
+  lifecycle {
+    ignore_changes = [default_action]
   }
 }
 

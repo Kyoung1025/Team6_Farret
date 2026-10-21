@@ -31,12 +31,19 @@ resource "aws_launch_template" "app" {
     http_put_response_hop_limit = 2
   }
 
+  # 비밀번호(DB, SMTP)는 부팅 때 Secrets Manager에서 읽는다
   user_data = base64encode(templatefile("${path.module}/templates/user-data.sh.tftpl", {
     region        = var.region
     account_id    = data.aws_caller_identity.current.account_id
     public_url    = var.public_url
-    allowed_hosts = var.allowed_hosts
+    mail_user     = var.mail_user
+    django_secret = var.django_secret
   }))
+
+  # 버전 설명은 콘솔에서 버전을 만들 때 적은 값
+  lifecycle {
+    ignore_changes = [description]
+  }
 }
 
 resource "aws_autoscaling_group" "app" {
@@ -125,6 +132,11 @@ resource "aws_ecr_repository" "pretix" {
 # 값은 콘솔에서 관리 (state에 남지 않게)
 resource "aws_secretsmanager_secret" "db_password" {
   name = "pretix/db-password"
+}
+
+# Gmail 앱 비밀번호
+resource "aws_secretsmanager_secret" "smtp_password" {
+  name = "pretix/smtp-password"
 }
 
 # 원서 마감 예약 스케일링. enable_scheduled_scaling이 false면 만들지 않음

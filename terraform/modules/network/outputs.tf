@@ -18,6 +18,11 @@ output "app_route_table_id" {
   value       = aws_route_table.app.id
 }
 
+output "public_route_table_id" {
+  description = "Public 라우팅 테이블 ID"
+  value       = aws_route_table.public.id
+}
+
 output "security_group_ids" {
   description = "보안그룹 ID (alb, app, nat, wg)"
   value = {
