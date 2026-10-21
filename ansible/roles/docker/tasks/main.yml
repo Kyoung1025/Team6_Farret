@@ -1,0 +1,16 @@
+- name: Docker 저장소
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/rhel/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: "0644"
+
+- name: Docker와 compose 플러그인
+  ansible.builtin.dnf:
+    name: [docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin]
+    state: present
+
+- name: Docker 기동
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true

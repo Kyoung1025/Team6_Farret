@@ -1,0 +1,2 @@
+# redis, pretix, nginx, exporter를 legacy 프로파일로 (가이드 ⑧-5)
+legacy_profile: true

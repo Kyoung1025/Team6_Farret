@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+export PATH=/usr/local/bin:/usr/bin:/bin
+TS=$(date +%Y%m%d-%H%M)
+BK=$HOME/backup
+BUCKET={{ backup_bucket }}
+mkdir -p "$BK"
+cd {{ stack_dir }}
+
+# 1) DB 덤프 (custom format)
+docker compose exec -T db pg_dump -U pretix -Fc pretix > "$BK/pretix-$TS.dump"
+
+# 2) 업로드 파일
+{% if pretix_data_from == 'k3s' %}
+export KUBECONFIG={{ kubeconfig_path }}
+kubectl exec -n pretix deploy/pretix -- tar czf - -C /data . > "$BK/pretix-data-$TS.tgz"
+{% else %}
+docker run --rm -v {{ pretix_data_volume }}:/data:ro -v "$BK":/out:Z alpine \
+  tar czf /out/pretix-data-$TS.tgz -C /data .
+{% endif %}
+
+# 3) S3 업로드
+aws s3 cp "$BK/pretix-$TS.dump" s3://$BUCKET/db/
+aws s3 cp "$BK/pretix-data-$TS.tgz" s3://$BUCKET/data/
+
+# 4) 여기까지 오면 성공: 지표 전송
+aws cloudwatch put-metric-data --namespace {{ backup_metric_namespace }} --metric-name {{ backup_metric_name }} --value 1
+
+# 5) 로컬 사본은 3일 보관
+find "$BK" -mtime +3 -type f -delete

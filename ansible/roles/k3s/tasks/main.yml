@@ -1,0 +1,39 @@
+- name: k3s 버전 확인
+  ansible.builtin.assert:
+    that: k3s_version is defined and k3s_version | length > 0
+    fail_msg: vars.yml에 k3s_version을 고정하세요
+
+- name: k3s 설치 (한 번만)
+  ansible.builtin.shell: >
+    curl -sfL https://get.k3s.io |
+    INSTALL_K3S_VERSION={{ k3s_version }} INSTALL_K3S_EXEC="server --disable traefik" sh -
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: .kube 폴더
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0700"
+
+- name: kubeconfig 복사
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    remote_src: true
+    owner: "{{ ansible_user }}"
+    mode: "0600"
+  when: not ansible_check_mode   # 미리 보기 때는 k3s가 아직 없음
+
+# 기본값 /etc/rancher/k3s/k3s.yaml은 root만 읽을 수 있음
+- name: 실행 계정이 자기 kubeconfig를 쓰게
+  ansible.builtin.lineinfile:
+    path: "/home/{{ ansible_user }}/.bashrc"
+    line: "export KUBECONFIG=$HOME/.kube/config"
+
+# sudo PATH에 /usr/local/bin이 없어 전체 경로로 호출
+- name: 노드 Ready 대기
+  ansible.builtin.command: /usr/local/bin/k3s kubectl wait --for=condition=Ready node --all --timeout=120s
+  changed_when: false
+  when: not ansible_check_mode

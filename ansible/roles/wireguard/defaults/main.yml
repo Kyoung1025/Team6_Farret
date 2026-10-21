@@ -1,0 +1,4 @@
+wg_address: 10.10.0.2/24
+wg_server_public_key: P05+huhY+BkUdgR1za9tZwUCOe2JN/8e3NQVojt5AgY=   # 허브
+wg_endpoint: 3.39.40.53:51820                                       # 허브 EIP
+wg_allowed_ips: 10.10.0.0/24, 10.0.0.0/16

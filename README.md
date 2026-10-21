@@ -58,6 +58,8 @@ terraform plan                    # apply 전에 반드시 plan 확인
 
 ## 규칙
 
-- 비밀값(DB 비밀번호, WireGuard 개인키, AWS 액세스 키)은 레포에 올리지 않는다
-- main에 직접 push하지 않는다. 작업 브랜치 → PR → 리뷰 → merge ([상세](docs/branch-rules.md))
-- AWS 리소스 이름은 `pretix-demo-` 접두사, 태그 `Project=pretix-demo`, 리전 `ap-northeast-2(서울)`
+- `main`에 직접 푸시하지 않고 PR로 올리며 한 명 이상이 본다.
+- 비밀값(DB 비밀번호, AWS 키, vault 비밀번호, `.pem`)은 저장소에 올리지 않는다. 실수로 올리면 지우는 것으로 끝내지 말고 키를 폐기하고 새로 발급한다.
+- Terraform 코드를 고칠 때는 저장 전에 `terraform fmt`를 돌린다.
+- AWS 콘솔에서 직접 고치지 않는다.
+- `docs/automation-boundary.md`는 팀이 함께 유지한다.

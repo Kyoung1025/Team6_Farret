@@ -1,0 +1,25 @@
+k8s_dir: "{{ app_home }}/k8s"
+pretix_cfg_src: "{{ stack_dir }}/pretix.cfg"   # compose가 쓰는 원본
+db_host: 10.10.0.2
+pretix_url: http://pretix-demo-alb-807412016.ap-northeast-2.elb.amazonaws.com   # AWS 앱과 같은 값
+
+pretix_data_size: 5Gi        # 지금 볼륨은 약 23MB
+pretix_data_docker_volume: stack_pretix-data   # 전환 전 docker 볼륨 (migrate_data용)
+pretix_cpu_limit: "1"        # 0.5면 시작 중 WORKER TIMEOUT 반복
+pretix_mem_request: 512Mi    # docker pretix 실사용 약 580MiB
+pretix_mem_limit: 2000Mi     # 1536Mi도 CPU 4개(워커 8개)에서 OOMKilled. 넘으면 pretix pod만 재시작 (DB 보호)
+
+exporter_version: "1.3.0"    # 지금 compose의 nginx-prometheus-exporter
+nginx_service_type: LoadBalancer   # 전환 뒤 값. ClusterIP로 두면 80이 닫힘
+nginx_real_ip_from: [10.0.0.0/16, 10.42.0.0/16]   # ALB(VPC), svclb
+
+# pretix.cfg [mail]. 비우면 원본 그대로. 비밀번호는 vault
+pretix_mail:
+  from: up041601@gmail.com
+  host: smtp.gmail.com
+  port: 587
+  user: up041601@gmail.com
+  password: "{{ vault_mail_password }}"
+  tls: "on"
+  ssl: "off"
+pretix_redis_sessions: false   # AWS 앱과 같게. true면 로그인 세션을 redis에
