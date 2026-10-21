@@ -25,25 +25,21 @@ Ubuntu VM 한 대에서 Docker Compose로 Nginx, pretix, Redis, PostgreSQL을 �
 | `pretix.cfg.example` | pretix 설정 템플릿 (비밀번호 제외) |
 | `.env.example` | 환경변수 템플릿. 실제 `.env`는 커밋하지 않는다 |
 
-### `terraform/` — IaC
 
-서울 리전에 VPC, NAT·WireGuard 인스턴스, ASG, ALB 등을 만든다. state는 S3 버킷 `pretix-demo-tfstate-994114886472`에 저장한다.
-
-```powershell
-aws login --profile ferret        # 콘솔 로그인으로 CLI 인증 (몇 시간 뒤 만료)
-$env:AWS_PROFILE = "ferret"       # 맥: export AWS_PROFILE=ferret
-cd terraform
-terraform init
-terraform plan                    # apply 전에 반드시 plan 확인
-```
+### `IaC/`
 
 | 파일 | 내용 |
 |---|---|
-| `main.tf` | Terraform·provider 버전, S3 백엔드, 공통 태그 |
-| `variables.tf` | 리전, 이름 접두사, VPC·서브넷 대역 |
-| `network.tf` | VPC, 서브넷 4개, IGW, 라우팅 테이블, S3 엔드포인트 |
-| `security_groups.tf` | 보안그룹 4개 (alb, app, nat, wg) |
-| `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스). 커밋한다 |
+| `main.tf` | Terraform·provider 버전, S3 백엔드, 공통 태그, 모듈 호출 |
+| `variables.tf` | 리전, 이름 접두사, VPC·서브넷 대역, 앱 AMI 등 |
+| `outputs.tf` | ALB 주소, WireGuard IP, ASG 이름, VPC ID (`terraform output`으로 확인) |
+| `imports.tf` | 콘솔로 만든 리소스를 코드와 연결하는 import 블록 |
+| `modules/network/` | VPC, 서브넷 4개, IGW, 라우팅 테이블, S3 엔드포인트, 보안그룹 4개 |
+| `modules/alb/` | ALB, 리스너, 대상 그룹, WAF |
+| `modules/app/` | Launch Template, Auto Scaling 그룹, 확장 정책, 부팅 스크립트, ECR, DB 비밀번호 보관함 |
+| `modules/gateway/` | NAT 인스턴스, WireGuard 서버, 탄력적 IP, App 경로 |
+| `modules/monitoring/` | SNS 알림, 디스코드 Lambda, 알람 3개, 대시보드 |
+| `.terraform.lock.hcl` | provider 버전 고정 (윈도우, 맥, 리눅스) |
 
 
 ### `docs/` — 문서 

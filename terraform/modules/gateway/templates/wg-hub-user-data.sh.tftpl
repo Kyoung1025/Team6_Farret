@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+exec > >(tee /var/log/wg-hub-boot.log) 2>&1
+REGION=${region}
+EIP_ALLOC=${eip_allocation_id}
+RT_APP=${app_route_table_id}
+RT_PUBLIC=${pub_route_table_id}
+
+TOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token -H 'X-aws-ec2-metadata-token-ttl-seconds: 300')
+IID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+
+# 1) 소스/대상 확인 끄기
+aws ec2 modify-instance-attribute --instance-id "$IID" --no-source-dest-check --region "$REGION"
+
+# 2) 설정 읽기: 개인키는 [Interface] 바로 아래에 끼워 넣는다
+KEY=$(aws ssm get-parameter --name /pretix/wg/server-private-key --with-decryption --query Parameter.Value --output text --region "$REGION")
+install -m 600 /dev/null /etc/wireguard/wg0.conf
+aws ssm get-parameter --name /pretix/wg/wg0-body --query Parameter.Value --output text --region "$REGION" \
+  | sed "/^\[Interface\]/a PrivateKey = $${KEY}" > /etc/wireguard/wg0.conf
+unset KEY
+
+# 3) WireGuard 시작
+sysctl -w net.ipv4.ip_forward=1
+systemctl enable --now wg-quick@wg0
+
+# 4) EIP 가져오기
+aws ec2 associate-address --instance-id "$IID" --allocation-id "$EIP_ALLOC" --allow-reassociation --region "$REGION"
+
+# 5) 라우트 교체 (경로가 아직 없으면 새로 만든다)
+for RT in "$RT_APP" "$RT_PUBLIC"; do
+  aws ec2 replace-route --route-table-id "$RT" --destination-cidr-block ${onprem_tunnel_cidr} --instance-id "$IID" --region "$REGION" \
+  || aws ec2 create-route --route-table-id "$RT" --destination-cidr-block ${onprem_tunnel_cidr} --instance-id "$IID" --region "$REGION"
+done
