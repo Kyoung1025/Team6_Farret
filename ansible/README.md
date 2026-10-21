@@ -92,4 +92,4 @@ kubectl logs -n pretix deploy/nginx -c nginx --tail=20
 - 바꾸기 전에 `--check --diff`로 본다.
 - `main`에 직접 푸시하지 않고 PR로 올리며 한 명 이상이 본다.
 - 비밀값(DB 비밀번호, AWS 키, vault 비밀번호, `.pem`)은 저장소에 올리지 않는다. 실수로 올리면 지우는 것으로 끝내지 말고 키를 폐기하고 새로 발급한다.
-- 무엇이 자동이고 무엇이 수동인지는 `docs/automation-boundary.md`에 적는다.
+- 무엇이 자동이고 무엇이 수동인지는 `docs/automation-boundary.md`, 코드에 들어 있는지는 `docs/ansible-scope.md`에 적는다.
