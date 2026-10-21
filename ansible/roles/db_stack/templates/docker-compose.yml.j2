@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pretix
+      POSTGRES_USER: pretix
+      POSTGRES_PASSWORD: {{ db_password }}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "10.10.0.2:5432:5432"
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+{% if legacy_profile %}
+    profiles: ["legacy"]
+{% endif %}
+
+  pretix:
+    image: pretix/standalone:stable
+    cpus: "0.5"
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./pretix.cfg:/etc/pretix/pretix.cfg:ro,Z
+      - pretix-data:/data
+{% if legacy_profile %}
+    profiles: ["legacy"]
+{% endif %}
+
+  nginx:
+    image: nginx:1.27
+    restart: unless-stopped
+    depends_on:
+      - pretix
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
+{% if legacy_profile %}
+    profiles: ["legacy"]
+{% endif %}
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.3.0
+    command: ["-nginx.scrape-uri=http://nginx:8082/stub_status"]
+    ports:
+      - "9113:9113"
+    restart: unless-stopped
+{% if legacy_profile %}
+    profiles: ["legacy"]
+{% endif %}
+
+volumes:
+  db-data:
+  pretix-data:

@@ -2,6 +2,8 @@
 .env
 *.key
 *.pem
+vault-pass*
+.vault-pass*
 
 # Terraform
 .terraform/

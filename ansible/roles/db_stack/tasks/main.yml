@@ -1,0 +1,25 @@
+# DB만 올리고 legacy 서비스는 건드리지 않음
+
+- name: stack 폴더
+  ansible.builtin.file:
+    path: "{{ stack_dir }}"
+    state: directory
+    owner: root
+    group: docker
+    mode: "0755"
+
+- name: docker-compose.yml
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ stack_dir }}/docker-compose.yml"
+    owner: root
+    group: docker
+    mode: "0644"
+  no_log: true   # DB 비밀번호가 들어감
+  register: compose_file
+
+- name: DB 기동 (compose가 바뀌었을 때만)
+  ansible.builtin.command: docker compose up -d db
+  args:
+    chdir: "{{ stack_dir }}"
+  when: compose_file.changed

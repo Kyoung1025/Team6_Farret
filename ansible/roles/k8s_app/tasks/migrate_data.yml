@@ -1,0 +1,16 @@
+- name: docker 볼륨 → PVC
+  ansible.builtin.shell: |
+    set -o pipefail
+    docker run --rm -v {{ pretix_data_docker_volume }}:/data:ro alpine tar czf - -C /data . \
+      | /usr/local/bin/k3s kubectl exec -i -n pretix deploy/pretix -- tar xzf - -C /data
+  args:
+    executable: /bin/bash
+
+- name: 복사 결과
+  ansible.builtin.command: /usr/local/bin/k3s kubectl exec -n pretix deploy/pretix -- ls -la /data
+  register: data_ls
+  changed_when: false
+
+- name: 복사 결과 출력
+  ansible.builtin.debug:
+    var: data_ls.stdout_lines

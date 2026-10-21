@@ -1,0 +1,12 @@
+- hosts: onprem
+  become: true
+  roles:
+    - { role: common,    tags: [common] }
+    - { role: docker,    tags: [docker] }       # DB 컨테이너용으로 유지
+    - { role: wireguard, tags: [wireguard] }    # firewalld보다 먼저 (wg0을 trusted에 넣음)
+    - { role: firewalld, tags: [firewalld] }
+    - { role: db_stack,  tags: [db] }
+    - { role: k3s,       tags: [k3s] }
+    - { role: ecr_pull,  tags: [k3s, ecr] }     # ECR 토큰 Secret + 갱신 cron
+    - { role: k8s_app,   tags: [k8s_app] }
+    - { role: backup,    tags: [backup] }
