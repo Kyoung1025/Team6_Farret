@@ -71,3 +71,9 @@ variable "scaling_schedules" {
   }))
   default = {}
 }
+
+variable "secret_recovery_window_days" {
+  description = "Secrets Manager 보관함을 지울 때 복구 대기 일수. 0이면 즉시 삭제 (재현성 테스트 계정용)"
+  type        = number
+  default     = 30
+}

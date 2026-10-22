@@ -132,11 +132,15 @@ resource "aws_ecr_repository" "pretix" {
 # 값은 콘솔에서 관리 (state에 남지 않게)
 resource "aws_secretsmanager_secret" "db_password" {
   name = "pretix/db-password"
+
+  recovery_window_in_days = var.secret_recovery_window_days
 }
 
 # Gmail 앱 비밀번호
 resource "aws_secretsmanager_secret" "smtp_password" {
   name = "pretix/smtp-password"
+
+  recovery_window_in_days = var.secret_recovery_window_days
 }
 
 # 원서 마감 예약 스케일링. enable_scheduled_scaling이 false면 만들지 않음

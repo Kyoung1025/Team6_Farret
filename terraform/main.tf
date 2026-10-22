@@ -79,6 +79,8 @@ module "app" {
   mail_user            = var.pretix_mail_user
   django_secret        = var.pretix_django_secret
 
+  secret_recovery_window_days = var.secret_recovery_window_days
+
   enable_scheduled_scaling = var.enable_scheduled_scaling
   scaling_schedules        = var.scaling_schedules
 }
