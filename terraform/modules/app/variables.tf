@@ -8,6 +8,11 @@ variable "region" {
   type        = string
 }
 
+variable "instance_profile_arn" {
+  description = "앱 서버 인스턴스 프로파일 (iam 모듈)"
+  type        = string
+}
+
 variable "ami_id" {
   description = "앱 EC2 AMI (Ubuntu 24.04, 서울)"
   type        = string

@@ -8,7 +8,7 @@ resource "aws_launch_template" "app" {
   instance_type = "t3.medium"
 
   iam_instance_profile {
-    arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/${var.name_prefix}-app-role"
+    arn = var.instance_profile_arn
   }
 
   vpc_security_group_ids = [var.security_group_id]

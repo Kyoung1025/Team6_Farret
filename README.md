@@ -25,6 +25,7 @@
 │   └── modules/
 │       ├── network/        VPC, 서브넷, 라우팅, 보안그룹
 │       ├── alb/            ALB, 대상 그룹(AWS, 온프렘), 가중치 리스너, WAF
+│       ├── iam/            앱 서버, NAT, 디스코드 Lambda 역할
 │       ├── app/            시작 템플릿, ASG, 확장 정책, ECR, Secrets Manager
 │       ├── gateway/        NAT 인스턴스, WireGuard 허브 ASG
 │       └── monitoring/     SNS, 경보, 대시보드 2개, Lambda 2개
@@ -71,7 +72,7 @@
 | DB 복원 | 백업 파일로 직접. 절차는 노션 시나리오 문서 |
 | 비밀값 넣기 (vault 비밀번호, AWS 키, WireGuard 키, tfvars) | 저장소에 안 올린다 |
 | VM 생성, 공유기 설정, 처음 SSH 키 | 코드가 닿기 전 단계 |
-| Terraform 첫 apply | import 70개라 팀이 시간을 맞춰서 |
+| Terraform 첫 apply | import 82개라 팀이 시간을 맞춰서 |
 
 ## 쓰는 값
 

@@ -1,6 +1,6 @@
 # Terraform 범위
 
-AWS 쪽에서 Terraform 코드로 관리하는 것과 안 하는 것.  (import 70, 추가 0, 삭제 0).
+AWS 쪽에서 Terraform 코드로 관리하는 것과 안 하는 것.  (import 82, 추가 0, 삭제 0. 10/22 IAM 역할 3개를 옮긴 뒤).
 
 처음에 콘솔로 만든 걸 `imports.tf`로 가져오는 방식이라, apply하기 전까지는 코드만 있고 state에는 아무것도 없다. 
 apply 후 `imports.tf`지워야함
@@ -14,6 +14,7 @@ apply 후 `imports.tf`지워야함
 | `network` | 보안그룹 4개(alb, app, nat, wg)와 규칙 | SSH는 안 엶. SSM으로 접속 |
 | `alb` | ALB, 80 리스너, 대상 그룹 2개(AWS 앱, 온프렘), 온프렘 대상 10.10.0.2 | |
 | `alb` | WAF (관리형 규칙 2개, Count) | 차단은 안 하고 기록만 |
+| `iam` | 역할 3개: 앱 서버(app), NAT(infra), 디스코드 Lambda(lambda-alert)와 정책, 인스턴스 프로파일 | 원래 콘솔에서 만든 걸 다른 계정 재현을 위해 옮김 |
 | `app` | 시작 템플릿, ASG(On-Demand 1 + Spot), CPU 60% 확장 정책, 예약 스케일링 | 예약 스케일링은 변수로 켬. 기본은 꺼짐 |
 | `app` | ECR 저장소, Secrets Manager 보관함 2개(DB, SMTP) | 보관함만. 값은 아래 참고 |
 | `gateway` | NAT 인스턴스, App 라우팅 테이블의 인터넷 경로 | NAT 게이트웨이는 시간당 요금이라 t3.micro로 |
@@ -35,7 +36,6 @@ apply 후 `imports.tf`지워야함
 | 리스너 가중치 변경 | 처음 만들 때만 코드 값(100 : 0)을 쓴다. 장애 때 Lambda가 0 : 100으로 바꾸고 복귀는 사람이 해서, apply가 되돌리지 않게 무시하도록 해 둠 |
 | ASG 대수 (desired, min) | 확장 정책과 예약 스케일링이 바꾸는 값이라 무시하도록 해 둠 |
 | 시작 템플릿 기본 버전 | Terraform은 새 버전을 만들기만 한다. 기본 버전 지정과 인스턴스 교체는 사람이 확인하고 한다 |
-| IAM 역할 3개 (app, infra, lambda-alert) | 다른 팀원이 콘솔에서 만들고 권한을 붙여 가며 써 왔다. 이름으로 가져다 쓰기만 하고, 권한 정리가 끝나면 넣는다 |
 | ASG 확장 경보 2개 (TargetTracking-…) | 확장 정책이 자동으로 만들고 지운다 |
 | 백업 버킷 `pretix-demo-backup-…` | 온프렘 VM이 쓰는 버킷이라 Ansible 백업 롤과 같이 다룬다. 아직 어느 쪽에도 없음 |
 | ECR 안의 이미지 | 코드가 아니라 빌드 결과물 |
@@ -58,6 +58,6 @@ apply 후 `imports.tf`지워야함
 
 ## apply 전에 알고 있을 것
 
-- 처음 apply하면 70개를 가져오고, 바뀌는 건 `Project` 태그 추가, Lambda 로그 보관 14일, WireGuard 규칙 설명 정도다. 그래도 `plan`을 한 번 더 보고 한다.
+- 처음 apply하면 82개를 가져오고, 바뀌는 건 `Project` 태그 추가, Lambda 로그 보관 14일, WireGuard 규칙 설명 정도다. 그래도 `plan`을 한 번 더 보고 한다.
 - 실행 위치와 상관없이 state는 S3에 하나다. 두 사람이 동시에 apply하면 락이 막아 준다.
 - 콘솔에서 바꾼 게 있으면 `plan`에 차이로 나온다. 코드를 맞추거나 콘솔을 되돌린 뒤 apply한다.
