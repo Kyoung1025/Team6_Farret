@@ -6,6 +6,17 @@ EIP_ALLOC=${eip_allocation_id}
 RT_APP=${app_route_table_id}
 RT_PUBLIC=${pub_route_table_id}
 
+# 0) 공개 Ubuntu 이미지로 떠도 되게: WireGuard, AWS CLI가 없으면 설치
+if ! command -v wg-quick >/dev/null || ! command -v aws >/dev/null; then
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update -y
+  apt-get install -y wireguard unzip curl
+  if ! command -v aws >/dev/null; then
+    curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o /tmp/awscliv2.zip
+    unzip -q /tmp/awscliv2.zip -d /tmp && /tmp/aws/install
+  fi
+fi
+
 TOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token -H 'X-aws-ec2-metadata-token-ttl-seconds: 300')
 IID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
 
