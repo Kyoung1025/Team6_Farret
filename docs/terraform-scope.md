@@ -1,8 +1,9 @@
 # Terraform 범위
 
-AWS 쪽에서 Terraform 코드로 관리하는 것과 안 하는 것. 10/21 기준이고, 이날 `terraform plan`으로 코드와 실제 계정이 같은 걸 확인했다 (import 70, 추가 0, 삭제 0).
+AWS 쪽에서 Terraform 코드로 관리하는 것과 안 하는 것.  (import 70, 추가 0, 삭제 0).
 
-처음에 콘솔로 만든 걸 `imports.tf`로 가져오는 방식이라, apply하기 전까지는 코드만 있고 state에는 아무것도 없다. apply 뒤에는 `imports.tf`를 지운다.
+처음에 콘솔로 만든 걸 `imports.tf`로 가져오는 방식이라, apply하기 전까지는 코드만 있고 state에는 아무것도 없다. 
+apply 후 `imports.tf`지워야함
 
 ## 코드로 관리하는 것
 
