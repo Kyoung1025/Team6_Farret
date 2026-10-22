@@ -1,0 +1,30 @@
+[pretix]
+instance_name={{ pretix_instance_name }}
+url={{ pretix_url }}
+trust_x_forwarded_for=on
+trust_x_forwarded_proto=on
+currency={{ pretix_currency }}
+datadir=/data
+
+[database]
+backend=postgresql
+name=pretix
+user=pretix
+password={{ db_password }}
+host={{ db_host }}
+
+[redis]
+sessions={{ pretix_redis_sessions | bool | ternary('true', 'false') }}
+location=redis://redis:6379/1
+
+[celery]
+backend=redis://redis:6379/1
+broker=redis://redis:6379/2
+
+[django]
+secret={{ pretix_django_secret }}
+
+[mail]
+{% for k, v in pretix_mail.items() %}
+{{ k }}={{ v }}
+{% endfor %}
