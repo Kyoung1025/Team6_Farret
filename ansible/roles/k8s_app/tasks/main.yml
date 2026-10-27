@@ -19,56 +19,18 @@
   when: not ansible_check_mode
   tags: [dbcheck]
 
-# 원본 pretix.cfg에서 host=db만 10.10.0.2로.
-# pretix_url을 주면 url도 바꾸고 ALB 뒤라서 X-Forwarded-* 를 믿게 함 (원본 파일은 안 건드림)
-- name: pretix.cfg 원본 읽기
-  ansible.builtin.slurp:
-    src: "{{ pretix_cfg_src }}"
-  register: pretix_cfg_raw
-  no_log: true
-  tags: [nginx]
-
+# pretix.cfg는 템플릿으로 통째로 만든다. 예전엔 docker 시절 원본(/root/stack/pretix.cfg)을
+# 읽어서 고쳤는데, 그러면 원본이 없는 새 VM에서 실패해서 바꿨다. 비밀번호와 secret은 vault
 - name: k3s용 pretix.cfg 만들기
   ansible.builtin.set_fact:
-    pretix_cfg_k8s: >-
-      {{ (pretix_cfg_raw.content | b64decode
-          | regex_replace('(?m)^host=db$', 'host=' ~ db_host))
-         if not pretix_url else
-         (pretix_cfg_raw.content | b64decode
-          | regex_replace('(?m)^host=db$', 'host=' ~ db_host)
-          | regex_replace('(?m)^trust_x_forwarded_(for|proto)\s*=.*\n?', '')
-          | regex_replace('(?m)^url\s*=.*$', 'url=' ~ pretix_url ~ '\ntrust_x_forwarded_for=on\ntrust_x_forwarded_proto=on')) }}
+    pretix_cfg_k8s: "{{ lookup('ansible.builtin.template', 'pretix.cfg.j2') }}"
   no_log: true
   tags: [nginx]
 
-# 원본 [mail] 섹션은 통째로 바꾼다 (같은 섹션이 두 번 있으면 pretix가 못 뜸). 비밀번호는 vault
-- name: pretix.cfg [mail]
+# nginx 헬스체크용 이름. url과 따로 관리하면 어긋나서 url에서 꺼냄
+- name: pretix url의 호스트
   ansible.builtin.set_fact:
-    pretix_cfg_k8s: >-
-      {{ (pretix_cfg_k8s | regex_replace('(?ms)^\[mail\][^\n]*\n.*?(?=^\[|\Z)', '') | trim)
-         ~ nl ~ nl ~ '[mail]' ~ nl
-         ~ (pretix_mail.items() | map('join', '=') | join(nl)) ~ nl }}
-  vars:
-    nl: "\n"
-  when: pretix_mail | length > 0
-  no_log: true
-  tags: [nginx]
-
-# 세션을 redis에 둘지. [redis] 섹션이 없으면 pretix는 이 줄을 무시
-- name: pretix.cfg [redis] sessions
-  ansible.builtin.set_fact:
-    pretix_cfg_k8s: >-
-      {{ pretix_cfg_k8s
-         | regex_replace('(?m)^sessions\s*=.*\n?', '')
-         | regex_replace('(?m)^\[redis\][^\n]*$',
-                         '[redis]\nsessions=' ~ (pretix_redis_sessions | bool | ternary('true', 'false'))) }}
-  no_log: true
-  tags: [nginx]
-
-# nginx 헬스체크용 이름. url과 따로 관리하면 어긋나서 여기서 꺼냄
-- name: pretix.cfg url의 호스트
-  ansible.builtin.set_fact:
-    pretix_host: "{{ pretix_cfg_k8s | regex_findall('(?m)^url\\s*=\\s*https?://([^/:\\s]+)') | first }}"
+    pretix_host: "{{ pretix_url | urlsplit('hostname') }}"
   tags: [nginx]
 
 - name: pretix-cfg Secret 적용

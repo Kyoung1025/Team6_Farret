@@ -75,7 +75,7 @@ VM 안이 아니라 제어 노드에서 돌린다.
 | `pretix_url` | ALB 주소 | AWS 앱 url과 같게. 도메인이 생기면 `https://tickets.<도메인>`. nginx가 Host를 이 이름으로 바꿔 넘김 |
 | `nginx_real_ip_from` | `[10.0.0.0/16, 10.42.0.0/16]` | ALB 뒤라서 접속자 실제 IP를 X-Forwarded-For에서 |
 
-`pretix.cfg` 원본은 VM의 `/root/stack/pretix.cfg`다. 롤은 이걸 읽어 DB 주소(`host=db` → `10.10.0.2`)와 url만 바꿔 k3s Secret으로 넣는다. 원본 파일은 건드리지 않는다.
+`pretix.cfg`는 `roles/k8s_app/templates/pretix.cfg.j2`로 통째로 만들어 k3s Secret으로 넣는다. url, DB 주소, 메일, redis 설정은 변수, 비밀번호와 django secret은 vault. 예전에는 docker 시절 원본(`/root/stack/pretix.cfg`)을 읽어서 고쳤는데, 원본이 없는 새 VM에서 실패해서 바꿨다.
 
 ## VM에서 확인할 때
 

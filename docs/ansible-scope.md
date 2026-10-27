@@ -20,7 +20,7 @@
 | `k8s_app` | 업로드 파일 복사(docker 볼륨 → PVC) | `-e migrate_data=true`를 줄 때만. 덮어써서 |
 | `backup` | `/root/backup.sh`, 매시 정각 cron | DB 덤프(`-Fc`)와 업로드 파일을 S3로 |
 
-`pretix.cfg`는 원본(`/root/stack/pretix.cfg`)을 읽어서 DB 주소, url, 메일, redis 설정만 바꾼 뒤 k3s Secret으로 넣는다. 원본 파일은 건드리지 않는다.
+`pretix.cfg`는 템플릿(`pretix.cfg.j2`)으로 통째로 만들어 k3s Secret으로 넣는다. 비밀번호와 django secret은 vault. 그래서 빈 VM에서도 `site.yml` 한 번으로 같은 설정이 나온다.
 
 ## 코드에 없는 것
 
@@ -32,7 +32,6 @@
 | VM의 AWS 키 (`default`, `ecr-pull` 프로필) | 비밀값. 사람이 `aws configure`로 넣었다 |
 | vault 비밀번호 | 저장소 밖에서 따로 전달 |
 | DB 비밀번호, 메일 비밀번호 값 | 코드에는 vault로 암호화해서 있다. 값 자체는 평문으로 안 둔다 |
-| `pretix.cfg` 원본 | docker 시절부터 쓰던 파일을 그대로 원본으로 쓴다. 롤은 읽기만 한다 |
 | DB 안의 데이터, 복원 | 데이터는 코드가 아니다. 복원은 백업 파일로 사람이 한다 |
 | 백업이 올라가는 S3 버킷 | AWS 쪽 리소스라 Ansible 범위 밖. Terraform에도 아직 없음 |
 | 허브 쪽 peer 등록 | AWS 허브의 `wg0.conf` 본문은 SSM 파라미터에 있다. 두 시스템을 잇는 단계라 사람이 확인하고 넣는다 |
