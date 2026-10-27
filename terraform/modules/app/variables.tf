@@ -8,6 +8,11 @@ variable "region" {
   type        = string
 }
 
+variable "instance_profile_arn" {
+  description = "앱 서버 인스턴스 프로파일 (iam 모듈)"
+  type        = string
+}
+
 variable "ami_id" {
   description = "앱 EC2 AMI (Ubuntu 24.04, 서울)"
   type        = string
@@ -65,4 +70,10 @@ variable "scaling_schedules" {
     desired_capacity = number
   }))
   default = {}
+}
+
+variable "secret_recovery_window_days" {
+  description = "Secrets Manager 보관함을 지울 때 복구 대기 일수. 0이면 즉시 삭제 (재현성 테스트 계정용)"
+  type        = number
+  default     = 30
 }

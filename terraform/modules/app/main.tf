@@ -8,7 +8,7 @@ resource "aws_launch_template" "app" {
   instance_type = "t3.medium"
 
   iam_instance_profile {
-    arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/${var.name_prefix}-app-role"
+    arn = var.instance_profile_arn
   }
 
   vpc_security_group_ids = [var.security_group_id]
@@ -132,11 +132,15 @@ resource "aws_ecr_repository" "pretix" {
 # 값은 콘솔에서 관리 (state에 남지 않게)
 resource "aws_secretsmanager_secret" "db_password" {
   name = "pretix/db-password"
+
+  recovery_window_in_days = var.secret_recovery_window_days
 }
 
 # Gmail 앱 비밀번호
 resource "aws_secretsmanager_secret" "smtp_password" {
   name = "pretix/smtp-password"
+
+  recovery_window_in_days = var.secret_recovery_window_days
 }
 
 # 원서 마감 예약 스케일링. enable_scheduled_scaling이 false면 만들지 않음

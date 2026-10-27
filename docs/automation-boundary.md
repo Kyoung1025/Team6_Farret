@@ -28,6 +28,7 @@
 |---|---|---|
 | VPC, 서브넷, 라우팅, 보안그룹 | `network` | |
 | ALB, 대상 그룹(AWS, 온프렘), 가중치 리스너, WAF | `alb` | 가중치는 처음 만들 때만 코드 값(100 : 0) |
+| IAM 역할 (앱 서버, NAT, 디스코드 Lambda) | `iam` | |
 | 시작 템플릿, ASG, 확장 정책 | `app` | |
 | NAT 인스턴스, WireGuard 허브 ASG | `gateway` | |
 | SNS, 경보 3개, 대시보드 2개, Lambda 2개 | `monitoring` | |
@@ -61,7 +62,7 @@
 | AWS 값(EIP, ALB 주소)을 Ansible 변수에 옮기기 | `terraform output`을 보고 옮긴다 |
 | 온프렘 → AWS 복귀 (가중치 100 : 0) | AWS가 다시 healthy인지 보고 돌린다. 자동이면 오락가락할 수 있음 |
 | 시작 템플릿 기본 버전 바꾸기, 인스턴스 교체 | Terraform은 새 버전만 만든다. 바꿀 시점은 사람이 정함 |
-| Terraform 첫 apply, 이후 `imports.tf` 삭제 | import 70개라 팀이 시간을 맞춰서 |
+| Terraform 첫 apply, 이후 `imports.tf` 삭제 | import 82개라 팀이 시간을 맞춰서 |
 | docker → k3s 전환 시점, 옛 컨테이너 삭제 | 되돌릴지 직접 판단해야 하고, 지우면 못 되돌림 |
 | DB 복원 | 데이터는 코드가 아니다. 백업 파일로 직접 |
 | 모니터링 스택 (Prometheus, Grafana, exporter) | 모니터링 담당이 VM에서 직접 관리 |

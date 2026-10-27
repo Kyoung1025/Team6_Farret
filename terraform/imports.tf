@@ -382,3 +382,67 @@ import {
   to = module.monitoring.aws_cloudwatch_dashboard.loadtest
   id = "pretix-demo-test3"
 }
+
+# --- IAM (10/22 코드로 옮김) ---
+
+import {
+  to = module.iam.aws_iam_role.app
+  id = "pretix-demo-app-role"
+}
+
+# ID: 역할/정책ARN
+import {
+  to = module.iam.aws_iam_role_policy_attachment.app["arn:aws:iam::aws:policy/AmazonSSMFullAccess"]
+  id = "pretix-demo-app-role/arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+}
+
+import {
+  to = module.iam.aws_iam_role_policy_attachment.app["arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"]
+  id = "pretix-demo-app-role/arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+import {
+  to = module.iam.aws_iam_role_policy_attachment.app["arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"]
+  id = "pretix-demo-app-role/arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+# ID: 역할:정책이름
+import {
+  to = module.iam.aws_iam_role_policy.app_db_secret
+  id = "pretix-demo-app-role:pretix-demo-read-db-secret"
+}
+
+import {
+  to = module.iam.aws_iam_role_policy.app_smtp_secret
+  id = "pretix-demo-app-role:pretix-smtp-secret-read"
+}
+
+import {
+  to = module.iam.aws_iam_instance_profile.app
+  id = "pretix-demo-app-role"
+}
+
+import {
+  to = module.iam.aws_iam_role.infra
+  id = "pretix-demo-infra-role"
+}
+
+import {
+  to = module.iam.aws_iam_role_policy_attachment.infra_ssm
+  id = "pretix-demo-infra-role/arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+import {
+  to = module.iam.aws_iam_instance_profile.infra
+  id = "pretix-demo-infra-role"
+}
+
+import {
+  to = module.iam.aws_iam_role.lambda_alert
+  id = "pretix-demo-lambda-alert-role"
+}
+
+import {
+  to = module.iam.aws_iam_role_policy_attachment.lambda_alert_logs
+  id = "pretix-demo-lambda-alert-role/arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}

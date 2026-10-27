@@ -109,6 +109,9 @@ resource "aws_launch_template" "wg" {
   image_id      = var.wg_ami_id
   instance_type = "t3.micro"
 
+  # ASG가 $Default를 쓰므로, 코드를 바꾸면 그 버전이 바로 기본이 되게 (다음 교체 때 반영)
+  update_default_version = true
+
   iam_instance_profile {
     arn = aws_iam_instance_profile.wg.arn
   }

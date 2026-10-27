@@ -57,19 +57,29 @@ module "alb" {
   weight_onprem     = var.alb_weight_onprem
 }
 
+module "iam" {
+  source = "./modules/iam"
+
+  name_prefix = var.name_prefix
+  region      = var.region
+}
+
 module "app" {
   source = "./modules/app"
 
-  name_prefix       = var.name_prefix
-  region            = var.region
-  ami_id            = var.app_ami_id
-  ami_snapshot_id   = var.app_ami_snapshot_id
-  subnet_ids        = module.network.app_subnet_ids
-  security_group_id = module.network.security_group_ids["app"]
-  target_group_arn  = module.alb.target_group_arn
-  public_url        = var.pretix_public_url
-  mail_user         = var.pretix_mail_user
-  django_secret     = var.pretix_django_secret
+  name_prefix          = var.name_prefix
+  region               = var.region
+  instance_profile_arn = module.iam.app_instance_profile_arn
+  ami_id               = var.app_ami_id
+  ami_snapshot_id      = var.app_ami_snapshot_id
+  subnet_ids           = module.network.app_subnet_ids
+  security_group_id    = module.network.security_group_ids["app"]
+  target_group_arn     = module.alb.target_group_arn
+  public_url           = var.pretix_public_url
+  mail_user            = var.pretix_mail_user
+  django_secret        = var.pretix_django_secret
+
+  secret_recovery_window_days = var.secret_recovery_window_days
 
   enable_scheduled_scaling = var.enable_scheduled_scaling
   scaling_schedules        = var.scaling_schedules
@@ -86,7 +96,7 @@ module "gateway" {
   wg_ami_id             = var.wg_ami_id
   nat_security_group_id = module.network.security_group_ids["nat"]
   wg_security_group_id  = module.network.security_group_ids["wg"]
-  instance_profile_name = "${var.name_prefix}-infra-role"
+  instance_profile_name = module.iam.infra_instance_profile_name
   app_route_table_id    = module.network.app_route_table_id
   public_route_table_id = module.network.public_route_table_id
   onprem_tunnel_cidr    = var.onprem_tunnel_cidr
@@ -102,7 +112,7 @@ module "monitoring" {
   target_group_arn_suffix = module.alb.target_group_arn_suffix
   alert_email             = var.alert_email
   discord_webhook_url     = var.discord_webhook_url
-  lambda_role_arn         = "arn:aws:iam::${local.account_id}:role/${var.name_prefix}-lambda-alert-role"
+  lambda_role_arn         = module.iam.lambda_alert_role_arn
   lambda_source_file      = "${path.root}/../monitoring/discord-notifier/lambda_function.py"
 
   listener_arn                   = module.alb.listener_arn

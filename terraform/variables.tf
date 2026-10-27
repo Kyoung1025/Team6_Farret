@@ -164,3 +164,10 @@ variable "alb_weight_onprem" {
   type        = number
   default     = 0
 }
+
+# 지운 보관함은 이 기간 동안 같은 이름으로 다시 못 만든다. 테스트 계정에서 destroy/apply를 반복할 때만 0
+variable "secret_recovery_window_days" {
+  description = "Secrets Manager 보관함 복구 대기 일수"
+  type        = number
+  default     = 30
+}
