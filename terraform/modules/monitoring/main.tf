@@ -153,20 +153,34 @@ locals {
 resource "aws_cloudwatch_metric_alarm" "aws_unhealthy" {
   alarm_name          = "${var.name_prefix}-aws-unhealthy"
   alarm_description   = "AWS app target group has no healthy targets. Consider switching ALB weight to on-prem."
-  namespace           = "AWS/ApplicationELB"
-  metric_name         = "HealthyHostCount"
-  statistic           = "Minimum"
-  period              = 60
   evaluation_periods  = 3
   datapoints_to_alarm = 3
   threshold           = 1
   comparison_operator = "LessThanThreshold"
-  treat_missing_data  = "breaching" # 서버가 0대면 ALB가 지표를 안 보냄
+  treat_missing_data  = "breaching"
   alarm_actions       = local.alarm_actions
 
-  dimensions = {
-    TargetGroup  = var.target_group_arn_suffix
-    LoadBalancer = var.alb_arn_suffix
+  # 서버가 0대면 ALB가 지표를 안 보내서 경보가 10분 넘게 늦었다.
+  # 빈 분을 0으로 채워서 약 6분 안에 울리게 함
+  metric_query {
+    id = "m1"
+    metric {
+      namespace   = "AWS/ApplicationELB"
+      metric_name = "HealthyHostCount"
+      stat        = "Minimum"
+      period      = 60
+      dimensions = {
+        TargetGroup  = var.target_group_arn_suffix
+        LoadBalancer = var.alb_arn_suffix
+      }
+    }
+  }
+
+  metric_query {
+    id          = "e1"
+    expression  = "FILL(m1, 0)"
+    label       = "HealthyHostCount (missing=0)"
+    return_data = true
   }
 }
 
