@@ -1,0 +1,80 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "app-node"
+    static_configs:
+      - targets:
+          - "192.0.2.4:9100"
+
+  - job_name: "app-cadvisor"
+    static_configs:
+      - targets:
+          - "192.0.2.4:8080"
+
+  - job_name: "data-node"
+    static_configs:
+      - targets:
+          - "192.0.2.5:9100"
+
+  - job_name: "data-cadvisor"
+    static_configs:
+      - targets:
+          - "192.0.2.5:8080"
+
+  - job_name: "team-rocky-node"
+    static_configs:
+      - targets:
+          - "192.0.2.2:9100"
+
+  - job_name: "team-rocky-cadvisor"
+    static_configs:
+      - targets:
+          - "192.0.2.2:8081"
+
+  - job_name: "team-rocky-nginx"
+    static_configs:
+      - targets:
+          - "192.0.2.2:9113"
+
+  - job_name: "blackbox-pretix"
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - "http://alb-1.example.invalid/healthcheck/"
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  # Rocky Linux Kubernetes 상태 수집
+  - job_name: "team-k3s-state"
+    scrape_interval: 15s
+    static_configs:
+      - targets: ["192.0.2.2:32180"]
+
+  # Blackbox Exporter - HTTP 서비스 상태 검사
+  - job_name: "blackbox-http"
+    metrics_path: /probe
+    scrape_interval: 15s
+    params:
+      module: [http_2xx]
+
+    static_configs:
+      - targets:
+          - "http://prometheus:9090/-/ready"
+
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+
+      - source_labels: [__param_target]
+        target_label: instance
+
+      - target_label: __address__
+        replacement: blackbox:9115

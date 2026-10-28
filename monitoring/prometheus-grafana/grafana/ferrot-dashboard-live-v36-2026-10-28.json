@@ -1,0 +1,5334 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "CloudWatch 기존 고정형 패널 대상 metricQueryType/metricEditorMode/statistic 보완. 기존 2.1 대시보드는 보존됨.\n시나리오 01 (AWS EC2 A/B 순차 중지, ASG 교체·앱 TG Healthy 복구) 상세 섹션 추가. 15초 장애 기준은 별도 1초 프로브 원본으로 검증.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "liveNow": false,
+  "panels": [
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "### **FERROT  |  하이브리드 인프라 운영 · 실험 관제**\n**실시간 상태  **초록=성공 · 빨강=실패 · No data=미수집(정상 아님)**  ",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [],
+      "title": "Ferrot | 서비스·서버·네트워크 통합 관제",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Blackbox /healthcheck/ 프로브 성공 여부. 일반 로그인 요청과 다릅니다.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 3
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min(probe_success{job=\"blackbox-pretix\"})",
+          "instant": true,
+          "legendFormat": "① ALB HTTP 정상 여부",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "① ALB HTTP 정상 여부",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Exporter 수집 상태(UP/DOWN). Pretix 서비스 정상 여부는 별도입니다.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 3
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min(up{job=\"team-rocky-node\"})",
+          "instant": true,
+          "legendFormat": "② Rocky 지표 수집",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "② Rocky 지표 수집",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 3
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min(up{job=\"team-rocky-nginx\"})",
+          "instant": true,
+          "legendFormat": "③ Nginx 지표 수집",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "③ Nginx 지표 수집",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 3
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min(up{job=\"team-k3s-state\"})",
+          "instant": true,
+          "legendFormat": "④ k3s 지표 수집",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "④ k3s 지표 수집",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "5분 평균 CPU 사용률; 80% 이상 지속 시 알림 후보",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 70
+              },
+              {
+                "color": "#E02F44",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 7
+      },
+      "id": 6,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 1,
+        "segmentSpacing": 0.3,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "auto"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "100*(1-avg(rate(node_cpu_seconds_total{job=\"team-rocky-node\",mode=\"idle\"}[5m])))",
+          "instant": true,
+          "legendFormat": "Rocky CPU 사용률",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Rocky CPU 사용률",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "MemAvailable 기반 사용률. 90% 이상 지속 알림 후보",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 80
+              },
+              {
+                "color": "#E02F44",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 7
+      },
+      "id": 7,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 1,
+        "segmentSpacing": 0.3,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "auto"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "100*(1-sum(node_memory_MemAvailable_bytes{job=\"team-rocky-node\"})/sum(node_memory_MemTotal_bytes{job=\"team-rocky-node\"}))",
+          "instant": true,
+          "legendFormat": "Rocky 메모리 사용률",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Rocky 메모리 사용률",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "루트(/) 파일시스템만 집계. 실제 mountpoint 레이블 확인 필요",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 75
+              },
+              {
+                "color": "#E02F44",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 7
+      },
+      "id": 8,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 1,
+        "segmentSpacing": 0.3,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "auto"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "100*(1-sum(node_filesystem_avail_bytes{job=\"team-rocky-node\",mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\"})/sum(node_filesystem_size_bytes{job=\"team-rocky-node\",mountpoint=\"/\",fstype!~\"tmpfs|overlay|squashfs\"}))",
+          "instant": true,
+          "legendFormat": "Rocky 루트 디스크 사용률",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Rocky 루트 디스크 사용률",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Blackbox probe_duration; hey p95/p99와 다른 측정값",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 5000,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 1000
+              },
+              {
+                "color": "#E02F44",
+                "value": 2000
+              }
+            ]
+          },
+          "unit": "ms"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 7
+      },
+      "id": 9,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 1,
+        "segmentSpacing": 0.3,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "auto"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "1000*max(probe_duration_seconds{job=\"blackbox-pretix\"})",
+          "instant": true,
+          "legendFormat": "ALB HTTP 검사 소요시간",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "ALB HTTP 검사 소요시간",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "1분 rate; 사용자 hey 평균 RPS와 다른 관측 값",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 22,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(nginx_http_requests_total{job=\"team-rocky-nginx\"}[1m]))",
+          "instant": false,
+          "legendFormat": "온프렘 요청량 추세 | Nginx RPS",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "온프렘 요청량 추세 | Nginx RPS",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Rocky wg0 메트릭 수집이 끊기면 No data가 될 수 있으며, 그 자체로 WG 터널 장애 입증은 불가능",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 22,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "KiBs"
+        }
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(node_network_receive_bytes_total{job=\"team-rocky-node\",device=\"wg0\"}[1m]))/1024",
+          "instant": false,
+          "legendFormat": "Rocky 수신",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(node_network_transmit_bytes_total{job=\"team-rocky-node\",device=\"wg0\"}[1m]))/1024",
+          "instant": false,
+          "legendFormat": "Rocky 송신",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "VPN 트래픽 추세 | wg0 RX·TX",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "서버 지표 수집 실패와 HTTP 서비스 장애의 발생 시점을 비교",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisPlacement": "auto",
+            "fillOpacity": 70,
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 0,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 1,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 15,
+        "x": 0,
+        "y": 20
+      },
+      "id": 12,
+      "options": {
+        "alignValue": "center",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "mergeValues": true,
+        "rowHeight": 0.9,
+        "showValue": "always",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min(probe_success{job=\"blackbox-pretix\"})",
+          "instant": false,
+          "legendFormat": "ALB HTTP 검사",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min(up{job=\"team-rocky-node\"})",
+          "instant": false,
+          "legendFormat": "Rocky Exporter",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min(up{job=\"team-rocky-nginx\"})",
+          "instant": false,
+          "legendFormat": "Nginx Exporter",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "min(up{job=\"team-k3s-state\"})",
+          "instant": false,
+          "legendFormat": "k3s Exporter",
+          "range": true,
+          "refId": "D"
+        }
+      ],
+      "title": "ALB HTTP와 Exporter 상태 타임라인",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "관측용 기준값. 35/50은 시험 threshold가 아닌 시각화 예시",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 60,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 35
+              },
+              {
+                "color": "#E02F44",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 15,
+        "y": 20
+      },
+      "id": 13,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(nginx_connections_active{job=\"team-rocky-nginx\"})",
+          "instant": true,
+          "legendFormat": "Nginx 활성 연결",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Nginx 활성 연결",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "실험 당시 3개였으나 현재 기대 replica 값은 배포 설정과 대조 필요",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 20
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_status_phase{job=\"team-k3s-state\",namespace=\"pretix\",phase=\"Running\"} == 1)",
+          "instant": true,
+          "legendFormat": "k3s Running Pod",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "k3s Running Pod",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "Pod Pending은 1개 이상이면 주의",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": 0
+              },
+              {
+                "color": "#E02F44",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 15,
+        "y": 24
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(kube_pod_status_phase{job=\"team-k3s-state\",namespace=\"pretix\",phase=\"Pending\"} == 1)",
+          "instant": true,
+          "legendFormat": "k3s Pending Pod",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "k3s Pending Pod",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "description": "누적 16회 자체가 아니라 최근 1시간 증가분을 표시",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": 0
+              },
+              {
+                "color": "#E02F44",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 19,
+        "y": 24
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(kube_pod_container_status_restarts_total{job=\"team-k3s-state\",namespace=\"pretix\"}[1h]))",
+          "instant": true,
+          "legendFormat": "Pod 재시작 증가 | 최근 1시간",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Pod 재시작 증가 | 최근 1시간",
+      "type": "stat"
+    },
+    {
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 17,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "### 실험 요약: **02 장애 전환 · 03A AWS 확장 · 03B 온프렘 부하 · 05 WireGuard 허브 장애**  \n아래 숫자는 2026.10.21~22에 저장된 과거 실험 결과로, 시간 선택에 따라 갱신되는 Prometheus 값이 아닙니다.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [],
+      "title": "시나리오별 실험 결과 | 과거 기록 (실시간 아님)",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 30
+      },
+      "id": 18,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "**HTTP 실패 → 복구:** 09:33:15 → 09:43:45  \n**온프렘 Nginx 최대:** 2.91 req/s  \n**최대 활성 연결:** 11  \n**DB 주문:** 11 → **12건**  \n검증: HTTP 회복 + 온프렘 요청 처리. 자동 복구 목표 시간 충족은 별도 증빙 필요.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [],
+      "title": "02 | AWS→온프렘 장애 전환",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 30
+      },
+      "id": 19,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "**확장:** ASG **1 → 2**, Healthy 2  \n**hey c100:** 120.45 req/s, 완료 200 37,244건  \n**p95:** 0.9395s  | **p99:** 13.9016s  \n**curl 로그인:** 응답 미수신 36/441  \n검증: 자동 확장 성공. p99 지연 증가 확인.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [],
+      "title": "03A | AWS Auto Scaling",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 30
+      },
+      "id": 20,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "**c40 hey 평균:** 61.36 req/s  \n**Nginx 피크:** 86.79 req/s  \n**최대 활성 연결:** 48  \n**c20 오류율:** 1.21% (기준 1% 초과)  \n**Pod:** Running 3·Pending 0, 누적 재시작 변화 없음.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [],
+      "title": "03B | Rocky/k3s 부하",
+      "type": "text"
+    },
+    {
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 30
+      },
+      "id": 21,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "**수집 장애:** Rocky Targets DOWN 표본  \n**HTTP 실패:** curl 000 13건  \n**HTTP 정상 복귀:** 09:43:19 (2026.10.22)  \n**주의:** 대상 수집 실패와 앱 HTTP 장애는 서로 다른 경로. 53초는 샘플 간격이지 정확한 다운타임 아님.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "13.2.3",
+      "targets": [],
+      "title": "05 | WireGuard 허브 장애",
+      "type": "text"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 36
+      },
+      "id": 711,
+      "panels": [
+        {
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 37
+          },
+          "id": 701,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "## 01 · AWS 인스턴스 고가용성 (EC2 A → B 순차 중지)\n**시작 조건:** AWS 앱 Target Group Healthy **2대(A·B)** · `example-aws_name-3` Desired=InService **2** · ALB AWS:온프렘 가중치 **100:0** · `?src=probe`를 붙인 **별도 1초 프로브 로그** 준비.  \n**검증 순서:** 정상 기준값(이벤트·DB) → A 중지 → B 접근 로그/HTTP 복구 → A′ Healthy 2대 회복 → B 중지 → A′ 전환 확인 → 상품·DB 저장 → 최종 Healthy2 대",
+            "mode": "markdown"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "01 | 시작 조건·절차·성공 기준 (실험 안내)",
+          "type": "text"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "example-aws_name-3: 목표 Desired 2대 유지 / InService 감소·회복 비교. CloudWatch 1분 주기·전송 지연에 유의. 인스턴스 A/B ID는 AWS 콘솔로 확인.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 44
+          },
+          "id": 704,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "AutoScalingGroupName": "example-aws_name-3"
+              },
+              "label": "목표 Desired",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "GroupDesiredCapacity",
+              "metricQueryType": 0,
+              "namespace": "AWS/AutoScaling",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            },
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "AutoScalingGroupName": "example-aws_name-3"
+              },
+              "label": "실제 InService",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "GroupInServiceInstances",
+              "metricQueryType": 0,
+              "namespace": "AWS/AutoScaling",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "B",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            }
+          ],
+          "title": "01 | ASG Desired / InService · 교체 과정",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "example-aws_name-4의 Healthy 대상 수. A 중지 시 2→1, 교체 인스턴스 A′ 추가 후 2 회복 기대(샘플링 시 순간 변화 미포착 가능). 온프렘 TG와 구분.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 44
+          },
+          "id": 705,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-2"
+              },
+              "label": "AWS 앱 HealthyHostCount",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "HealthyHostCount",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            }
+          ],
+          "title": "01 | AWS 앱 TG HealthyHostCount (2→1→2)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "description": "Prometheus Blackbox 검사 시간(ms). 사용자 1초 프로브의 실제 응답 지연·다운타임과 동일하지 않습니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "ms"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 51
+          },
+          "id": 706,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "1000*max(probe_duration_seconds{job=\"blackbox-pretix\"})",
+              "instant": false,
+              "legendFormat": "Blackbox probe duration (ms)",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "01 | Blackbox HTTP 검사 지연(ms)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "AWS 앱 TG의 ALB→타깃 p95(1분 집계). 애플리케이션 타깃 응답 구간이며, 사용자에게 관측되는 전체 다운타임과 다릅니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "s"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 51
+          },
+          "id": 707,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-2"
+              },
+              "label": "AWS 앱 대상 p95",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "TargetResponseTime",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "p95",
+              "statistics": [
+                "p95"
+              ]
+            }
+          ],
+          "title": "01 | AWS 앱 ALB TargetResponseTime p95 (초)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "AWS 앱 TG의 대상당 평균 요청 수(집계). 다른 인스턴스(B)로 트래픽이 옮겨갔다는 직접 증거는 아님. B 컨테이너 접근 로그의 src=probe 건수 비교가 필수.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 12,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 58
+          },
+          "id": 708,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-2"
+              },
+              "label": "AWS 앱 대상당 요청 수",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "RequestCountPerTarget",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Sum",
+              "statistics": [
+                "Sum"
+              ]
+            }
+          ],
+          "title": "01 | AWS 앱 TG RequestCountPerTarget (1분)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "HTTPCode_ELB_5XX_Count / HTTPCode_Target_5XX_Count. 정상 시 CloudWatch가 0 대신 No data를 보여줄 수 있음. 5xx 없다고 다운타임 0초라는 뜻은 아님.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 58
+          },
+          "id": 709,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1"
+              },
+              "label": "ALB 자체 5xx",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "HTTPCode_ELB_5XX_Count",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Sum",
+              "statistics": [
+                "Sum"
+              ]
+            },
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-2"
+              },
+              "label": "AWS 타깃 5xx",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "HTTPCode_Target_5XX_Count",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "B",
+              "region": "ap-northeast-2",
+              "statistic": "Sum",
+              "statistics": [
+                "Sum"
+              ]
+            }
+          ],
+          "title": "01 | ALB 5xx 오류 발생 (1분 합계)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "description": "Blackbox /healthcheck/ 현재 응답 성공 여부(1=성공, 0=실패). 시나리오 검증표의 1초 ?src=probe 결과와 별개입니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "DOWN"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "UP"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 6,
+            "x": 0,
+            "y": 65
+          },
+          "id": 702,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(probe_success{job=\"blackbox-pretix\"})",
+              "instant": true,
+              "legendFormat": "① ALB HTTP 정상 여부",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "01 | 현재 ALB HTTP 상태 (Blackbox)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "description": "Blackbox 수집 주기에 따른 HTTP 상태 변화. 15초 장애시간 판정은 1초 프로브 원본 로그로 해야 합니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "DOWN"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "UP"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 18,
+            "x": 6,
+            "y": 65
+          },
+          "id": 703,
+          "options": {
+            "alignValue": "center",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "always",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(probe_success{job=\"blackbox-pretix\"})",
+              "instant": false,
+              "legendFormat": "Blackbox HTTP (ALB)",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "01 | A·B 순차 중지 · ALB HTTP 상태 타임라인",
+          "type": "state-timeline"
+        },
+        {
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 71
+          },
+          "id": 710,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "## 01 · 모니터링 담당 증적 체크리스트\n- **전:** AWS 콘솔에서 A·B ID, ASG Desired/InService **2**, 앱 TG Healthy **2**, ALB AWS 100/온프렘 0 확인·스크린샷. DB/이벤트 기준값 저장(담당자 자료).  \n- **A 중지 직전:** OBS 연속 녹화 시작. 1초 프로브 `.../healthcheck/?src=probe` 시작 시각·로그 파일 확인.  \n- **A 중지:** AWS 실제 조작 시각, 프로브 `first_fail`/`last_fail`, HTTP 상태·지연 패널 및 AWS 앱 TG Healthy/ASG 변화를 함께 기록.  \n- **B 인계:** B 컨테이너 `docker logs --since 30s $C | grep -c 'src=probe'` 중지 전·후 30초 건수(팀원 캡처)와 상품 저장 성공 화면.  \n- **A′ 복구:** AWS ASG InService **2**, TG Healthy **2**가 된 시점과 신생 인스턴스 ID 확보.  \n- **B 중지:** 위와 동일한 증적 재수집. 마지막 Healthy **2**, 이벤트 **+1**·상품 **2개** DB 저장 확인.  \n- **판정 주의:** `first_fail~last_fail`은 관측된 실패 샘플 구간이지 실제 장애의 정확한 전체 길이가 아님. 정확한 장애시간은 요청 간격·타임아웃·AWS 메트릭 지연을 고려해 해석할 것.  \n- **Grafana 화면:** 실험 시각 범위로 Zoom, 화면 오른쪽 위 현재 시각/KST 표시. **15초 SLA는 별도 프로브 원본으로 산정**하고 이 그래프만으로 통과 판정하지 말 것.",
+            "mode": "markdown"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "01 | OBS 촬영·스크린샷·증거 수집 체크리스트",
+          "type": "text"
+        }
+      ],
+      "title": "01 | AWS 고가용성 · EC2 A/B 순차 중지 및 ASG 자동 복구",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
+      "id": 712,
+      "panels": [
+        {
+          "gridPos": {
+            "h": 3,
+            "w": 24,
+            "x": 0,
+            "y": 38
+          },
+          "id": 101,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "**AWS 장애 시 Blackbox HTTP DOWN → UP 복귀를 관측**하고, Nginx 요청률·wg0 송신·DB 주문 증가로 실제 온프렘 처리를 교차 확인했습니다. (2026.10.21 09:32~09:53 KST)",
+            "mode": "markdown"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "시나리오 02 | 발표 결론",
+          "type": "text"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "DOWN"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "UP"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 41
+          },
+          "id": 102,
+          "options": {
+            "alignValue": "center",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "always",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(probe_success{job=\"blackbox-pretix\"})",
+              "instant": false,
+              "legendFormat": "ALB HTTP 검사",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(up{job=\"team-rocky-node\"})",
+              "instant": false,
+              "legendFormat": "Rocky Exporter",
+              "range": true,
+              "refId": "B"
+            }
+          ],
+          "title": "서비스 전환 타임라인",
+          "type": "state-timeline"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "reqps"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 41
+          },
+          "id": 103,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(nginx_http_requests_total{job=\"team-rocky-nginx\"}[1m]))",
+              "instant": false,
+              "legendFormat": "전환 시 Nginx RPS",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "전환 시 Nginx RPS",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "KiBs"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 48
+          },
+          "id": 104,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(node_network_transmit_bytes_total{job=\"team-rocky-node\",device=\"wg0\"}[1m]))/1024",
+              "instant": false,
+              "legendFormat": "WireGuard TX 추세",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "WireGuard TX 추세",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 48
+          },
+          "id": 105,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "100*(1-avg(rate(node_cpu_seconds_total{job=\"team-rocky-node\",mode=\"idle\"}[5m])))",
+              "instant": false,
+              "legendFormat": "CPU %",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "100*(1-sum(node_memory_MemAvailable_bytes{job=\"team-rocky-node\"})/sum(node_memory_MemTotal_bytes{job=\"team-rocky-node\"}))",
+              "instant": false,
+              "legendFormat": "메모리 %",
+              "range": true,
+              "refId": "B"
+            }
+          ],
+          "title": "Rocky CPU·메모리 비교",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "CloudWatch 실측값입니다. 데이터가 없으면 No data로 표시합니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 12,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 55
+          },
+          "id": 601,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-2"
+              },
+              "label": "AWS 앱 Healthy",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "HealthyHostCount",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            },
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-3"
+              },
+              "label": "온프렘 Healthy",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "HealthyHostCount",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "B",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            }
+          ],
+          "title": "02 | AWS 앱·온프렘 TG 정상 타깃 동시 비교",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "AWS ALB가 온프렘 타깃에 분배한 대상당 평균 요청 수입니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 12,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 55
+          },
+          "id": 602,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-3"
+              },
+              "label": "온프렘 대상당 요청 수",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "RequestCountPerTarget",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Sum",
+              "statistics": [
+                "Sum"
+              ]
+            }
+          ],
+          "title": "02 | 온프렘 TG 대상당 요청 수(1분)",
+          "type": "timeseries"
+        },
+        {
+          "gridPos": {
+            "h": 3,
+            "w": 24,
+            "x": 0,
+            "y": 62
+          },
+          "id": 106,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "**PostgreSQL 주문 11 → 12건 (+1)** · 디스크 사용률 약 49.7% · Rocky CPU 대체로 30%대. 이 수치는 DB를 Grafana에 직접 연결해 조회한 실시간 지표가 아니라 원본 팀 기록입니다.",
+            "mode": "markdown"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "실제 주문 기능 결과 (팀 DB 기록)",
+          "type": "text"
+        }
+      ],
+      "title": "02 | AWS 장애 → 온프렘 전환 상세 분석",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "id": 713,
+      "panels": [
+        {
+          "gridPos": {
+            "h": 4,
+            "w": 24,
+            "x": 0,
+            "y": 39
+          },
+          "id": 201,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "| 부하 단계 | 완료 HTTP 200 | 평균 RPS | p95 | p99 | hey 실패율 |\n|---|---:|---:|---:|---:|---:|\n| c20 / 120s | 14,955 | 124.53 | 0.1324s | 0.3817s | 0% |\n| c100 / 300s 설정 | 37,244 | 120.45 | 0.9395s | 13.9016s | 0% |\n\nAWS **CPU 약 100% → ASG 1→2 → Healthy Target 2**. CloudWatch 연동 후 아래 패널을 활성 조회. `hey`와 Grafana Blackbox는 서로 다른 검사입니다.",
+            "mode": "markdown"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "시나리오 03A | hey 단계별 실측(과거)",
+          "type": "text"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "InstanceId 변수 설정 필요. 인스턴스 교체 시 새 ID도 반영해야 합니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 43
+          },
+          "id": 202,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "InstanceId": "example-ec2-1"
+              },
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "CPUUtilization",
+              "metricQueryType": 0,
+              "namespace": "AWS/EC2",
+              "period": "300",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            }
+          ],
+          "title": "AWS / AWS CPU는 확장 임계 부하에 도달했는가? | EC2 CPU",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "ASG 그룹 메트릭 활성화 필요할 수 있습니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 43
+          },
+          "id": 203,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "AutoScalingGroupName": "example-aws_name-3"
+              },
+              "label": "목표 Desired",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "GroupDesiredCapacity",
+              "metricQueryType": 0,
+              "namespace": "AWS/AutoScaling",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            },
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "AutoScalingGroupName": "example-aws_name-3"
+              },
+              "label": "실제 InService",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "GroupInServiceInstances",
+              "metricQueryType": 0,
+              "namespace": "AWS/AutoScaling",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "B",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            }
+          ],
+          "title": "AWS / ASG 인스턴스 1→2 확장 | Desired / InService",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "TargetGroup과 LoadBalancer는 이름이 아닌 전체 차원 값(targetgroup/.../... , app/.../...)을 입력해야 합니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 50
+          },
+          "id": 204,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-2"
+              },
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "HealthyHostCount",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            }
+          ],
+          "title": "AWS / 새 인스턴스는 Healthy로 등록됐는가? | HealthyHostCount",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "hey p95와 측정 범위가 다릅니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "s"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 50
+          },
+          "id": 205,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-2"
+              },
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "TargetResponseTime",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "p95",
+              "statistics": [
+                "p95"
+              ]
+            }
+          ],
+          "title": "AWS / AWS ALB 타깃 p95 응답시간",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "DOWN"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "UP"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 0,
+            "y": 57
+          },
+          "id": 206,
+          "options": {
+            "alignValue": "center",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "always",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(probe_success{job=\"blackbox-pretix\"})",
+              "instant": false,
+              "legendFormat": "부하 중 ALB HTTP 헬스체크",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "부하 중 ALB HTTP 헬스체크",
+          "type": "state-timeline"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "ms"
+            }
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 12,
+            "y": 57
+          },
+          "id": 207,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "1000*max(probe_duration_seconds{job=\"blackbox-pretix\"})",
+              "instant": false,
+              "legendFormat": "Blackbox 검사 소요시간",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Blackbox 검사 소요시간",
+          "type": "timeseries"
+        }
+      ],
+      "title": "03A | AWS 자동 확장·클라이언트 응답 성능 상세",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "id": 714,
+      "panels": [
+        {
+          "gridPos": {
+            "h": 5,
+            "w": 24,
+            "x": 0,
+            "y": 40
+          },
+          "id": 301,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "| 동시성 | hey 평균 RPS | hey 오류율 | Grafana Nginx 순간 피크 | Nginx 활성 연결 최고 |\n|---:|---:|---:|---:|---:|\n| c5 | 36.57 | 0.21% | 53.90 req/s | 10 |\n| c10 | 52.15 | 0% | 55.46 req/s | 15 |\n| c20 | 25.00 | **1.21%** | 30.22 req/s | 25 |\n| c40 | **61.36** | 0.83% | **86.79 req/s** | **48** |\n| c30 (추가) | 원본 없음 | 미확인 | 50.11 req/s | 36 |\n\n**판정:** c40 최고 *관측* 처리량 · c20 1% 오류율 기준 초과 · 최대 안정 용량 미확정.",
+            "mode": "markdown"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "시나리오 03B | 단계별 hey 실제 결과 (과거)",
+          "type": "text"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "reqps"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 45
+          },
+          "id": 302,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(nginx_http_requests_total{job=\"team-rocky-nginx\"}[1m]))",
+              "instant": false,
+              "legendFormat": "온프렘 웹 요청 추이",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "온프렘 웹 요청 추이",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "percent"
+            }
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 12,
+            "y": 45
+          },
+          "id": 305,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "100*(1-avg(rate(node_cpu_seconds_total{job=\"team-rocky-node\",mode=\"idle\"}[5m])))",
+              "instant": false,
+              "legendFormat": "Rocky CPU",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "100*(1-sum(node_memory_MemAvailable_bytes{job=\"team-rocky-node\"})/sum(node_memory_MemTotal_bytes{job=\"team-rocky-node\"}))",
+              "instant": false,
+              "legendFormat": "Rocky 메모리",
+              "range": true,
+              "refId": "B"
+            }
+          ],
+          "title": "온프렘 자원 사용률",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 51
+          },
+          "id": 303,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(nginx_connections_active{job=\"team-rocky-nginx\"})",
+              "instant": false,
+              "legendFormat": "Nginx 활성 연결 변화",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Nginx 활성 연결 변화",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "max": 5,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 12,
+            "x": 0,
+            "y": 52
+          },
+          "id": 304,
+          "options": {
+            "displayMode": "gradient",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showUnfilled": true,
+            "sizing": "auto",
+            "valueMode": "color"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(kube_pod_status_phase{job=\"team-k3s-state\",namespace=\"pretix\",phase=\"Running\"} == 1)",
+              "instant": true,
+              "legendFormat": "실행 중 Pod",
+              "range": false,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(kube_pod_status_phase{job=\"team-k3s-state\",namespace=\"pretix\",phase=\"Pending\"} == 1)",
+              "instant": true,
+              "legendFormat": "대기 Pod",
+              "range": false,
+              "refId": "B"
+            }
+          ],
+          "title": "Pod 운영 상태 비교",
+          "type": "bargauge"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "description": "실험 전후 누적 재시작은 16으로 동일; 전체 누적 수치를 이 패널과 혼동하면 안 됨",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "#299c46",
+                    "value": 0
+                  },
+                  {
+                    "color": "#E02F44",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 58
+          },
+          "id": 306,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(increase(kube_pod_container_status_restarts_total{job=\"team-k3s-state\",namespace=\"pretix\"}[1h]))",
+              "instant": true,
+              "legendFormat": "Pod 재시작 증가 최근 1시간",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Pod 재시작 증가 최근 1시간",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "DOWN"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "UP"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 18,
+            "x": 6,
+            "y": 58
+          },
+          "id": 307,
+          "options": {
+            "alignValue": "center",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "always",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(probe_success{job=\"blackbox-pretix\"})",
+              "instant": false,
+              "legendFormat": "서비스 HTTP 검사 실패 구간",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "서비스 HTTP 검사 실패 구간",
+          "type": "state-timeline"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "CloudWatch 실측값입니다. 데이터가 없으면 No data로 표시합니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 12,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 62
+          },
+          "id": 603,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "LoadBalancer": "example-elb_resource-1",
+                "TargetGroup": "example-elb_resource-3"
+              },
+              "label": "온프렘 대상당 요청 수",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "RequestCountPerTarget",
+              "metricQueryType": 0,
+              "namespace": "AWS/ApplicationELB",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Sum",
+              "statistics": [
+                "Sum"
+              ]
+            }
+          ],
+          "title": "3B | 온프렘 TG 대상당 요청 수(1분)",
+          "type": "timeseries"
+        }
+      ],
+      "title": "03B | 온프렘 단계별 부하·Pod 안정성 상세",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 715,
+      "panels": [
+        {
+          "gridPos": {
+            "h": 4,
+            "w": 24,
+            "x": 0,
+            "y": 41
+          },
+          "id": 401,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "2026.10.22: WireGuard 허브 장애 실험에서 **Rocky Exporter 수집 실패와 서비스 HTTP 응답**은 동일 시점에 동시 실패하지 않았습니다. 후반 Ubuntu curl 검사에서 **HTTP 000 13건 → 09:43:19 HTTP 200 복귀**를 확인했습니다.",
+            "mode": "markdown"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "시나리오 05 | 장애 전파와 응답 복귀 기록",
+          "type": "text"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "DOWN"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "UP"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 45
+          },
+          "id": 402,
+          "options": {
+            "alignValue": "center",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "always",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(up{job=\"team-rocky-node\"})",
+              "instant": false,
+              "legendFormat": "Rocky Exporter",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(up{job=\"team-rocky-nginx\"})",
+              "instant": false,
+              "legendFormat": "Nginx Exporter",
+              "range": true,
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(up{job=\"team-k3s-state\"})",
+              "instant": false,
+              "legendFormat": "k3s Exporter",
+              "range": true,
+              "refId": "D"
+            }
+          ],
+          "title": "Rocky Targets 장애 발생 구간",
+          "type": "state-timeline"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisPlacement": "auto",
+                "fillOpacity": 70,
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineWidth": 0,
+                "spanNulls": false
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "color": "red",
+                      "index": 0,
+                      "text": "DOWN"
+                    },
+                    "1": {
+                      "color": "green",
+                      "index": 1,
+                      "text": "UP"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 45
+          },
+          "id": 403,
+          "options": {
+            "alignValue": "center",
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "mergeValues": true,
+            "rowHeight": 0.9,
+            "showValue": "always",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "min(probe_success{job=\"blackbox-pretix\"})",
+              "instant": false,
+              "legendFormat": "HTTP 서비스 검사 상태",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "HTTP 서비스 검사 상태",
+          "type": "state-timeline"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "KiBs"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 52
+          },
+          "id": 404,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(node_network_receive_bytes_total{job=\"team-rocky-node\",device=\"wg0\"}[1m]))/1024",
+              "instant": false,
+              "legendFormat": "WG 수신",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "sum(rate(node_network_transmit_bytes_total{job=\"team-rocky-node\",device=\"wg0\"}[1m]))/1024",
+              "instant": false,
+              "legendFormat": "WG 송신",
+              "range": true,
+              "refId": "B"
+            }
+          ],
+          "title": "WG RX·TX 트래픽 변화",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 22,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 4,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "ms"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 52
+          },
+          "id": 405,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
+              "editorMode": "code",
+              "expr": "1000*max(probe_duration_seconds{job=\"blackbox-pretix\"})",
+              "instant": false,
+              "legendFormat": "HTTP 검사 소요 시간",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "HTTP 검사 소요 시간",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "CloudWatch 실측값입니다. 데이터가 없으면 No data로 표시합니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 12,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 0,
+            "y": 59
+          },
+          "id": 604,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "InstanceId": "example-ec2-2"
+              },
+              "label": "허브 상태검사 실패",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "StatusCheckFailed",
+              "metricQueryType": 0,
+              "namespace": "AWS/EC2",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Maximum",
+              "statistics": [
+                "Maximum"
+              ]
+            }
+          ],
+          "title": "05 | WireGuard 허브 EC2 상태 검사",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${DS_CLOUDWATCH}"
+          },
+          "description": "CloudWatch 실측값입니다. 데이터가 없으면 No data로 표시합니다.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 12,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            }
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 12,
+            "x": 12,
+            "y": 59
+          },
+          "id": 605,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "AutoScalingGroupName": "example-aws_name-5"
+              },
+              "label": "허브 Desired",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "GroupDesiredCapacity",
+              "metricQueryType": 0,
+              "namespace": "AWS/AutoScaling",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "A",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            },
+            {
+              "datasource": {
+                "type": "cloudwatch",
+                "uid": "${DS_CLOUDWATCH}"
+              },
+              "dimensions": {
+                "AutoScalingGroupName": "example-aws_name-5"
+              },
+              "label": "허브 InService",
+              "matchExact": true,
+              "metricEditorMode": 0,
+              "metricName": "GroupInServiceInstances",
+              "metricQueryType": 0,
+              "namespace": "AWS/AutoScaling",
+              "period": "60",
+              "queryMode": "Metrics",
+              "queryType": "timeSeriesQuery",
+              "refId": "B",
+              "region": "ap-northeast-2",
+              "statistic": "Average",
+              "statistics": [
+                "Average"
+              ]
+            }
+          ],
+          "title": "05 | WireGuard 허브 ASG 목표·운영 대수",
+          "type": "timeseries"
+        },
+        {
+          "description": "Grafana Alerting에 등록된 규칙의 현재 상태. 규칙 YAML은 dashboard JSON과 별도이며 처음에는 일시 중지입니다.",
+          "gridPos": {
+            "h": 7,
+            "w": 14,
+            "x": 0,
+            "y": 66
+          },
+          "id": 501,
+          "options": {
+            "alertInstanceLabelFilter": "",
+            "alertName": "",
+            "dashboardAlerts": false,
+            "groupBy": [],
+            "groupMode": "default",
+            "maxItems": 10,
+            "showInactiveAlerts": false,
+            "showOptions": "current",
+            "sortOrder": 3,
+            "statColorMode": "none",
+            "statThresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "statValueMappings": [],
+            "stateFilter": {
+              "alerting": true,
+              "error": true,
+              "firing": true,
+              "noData": true,
+              "normal": false,
+              "pending": true,
+              "recovering": true
+            },
+            "viewMode": "list"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "알림 센터 | 발화·대기·데이터 없음",
+          "type": "alertlist"
+        },
+        {
+          "gridPos": {
+            "h": 7,
+            "w": 10,
+            "x": 14,
+            "y": 66
+          },
+          "id": 502,
+          "options": {
+            "code": {
+              "language": "plaintext",
+              "showLineNumbers": false,
+              "showMiniMap": false
+            },
+            "content": "**대시보드 JSON만으로 알림은 자동 생성되지 않습니다.** 별도의 `Ferrot_알림규칙_초기중지.yaml`에 정의된 10가지 알림을 Grafana 서버에서 provisioning 해야 합니다.  \n1. `PROMETHEUS_UID_REPLACE_ME` 교체 + 알림 폴더 설정  \n2. Rocky VM 복귀·Prometheus 수집 확인  \n3. 알림 임계값 검증 뒤 **일시 중지 해제**  \n4. **Contact point(이메일·Slack 등)** 및 알림 정책 설정  \n\n대시보드 상태 카드 색상은 알림 통지와 별개입니다. <u>과거 hey 오류율·p95/p99는 실시간 알림 데이터가 아닙니다.</u>",
+            "mode": "markdown"
+          },
+          "pluginVersion": "13.2.3",
+          "targets": [],
+          "title": "알림 적용 전 필수 확인",
+          "type": "text"
+        }
+      ],
+      "title": "05 | WireGuard 허브 장애 전파·복구 분석 상세",
+      "type": "row"
+    }
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 42,
+  "tags": [
+    "ferrot",
+    "한글",
+    "overview",
+    "s2",
+    "s3a",
+    "s3b",
+    "s5",
+    "시각화",
+    "aws-fixed",
+    "scenario",
+    "s1",
+    "ha"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allowCustomValue": true,
+        "current": {
+          "text": "prometheus",
+          "value": "ag0invjn7b1mod"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "데이터소스 · DS_PROMETHEUS",
+        "multi": false,
+        "name": "DS_PROMETHEUS",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "timezone": "Asia/Seoul",
+  "title": "Ferrot | 통합 관제판 2.4 (+시나리오 1)",
+  "uid": "example-dashboard",
+  "version": 36
+}

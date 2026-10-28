@@ -1,0 +1,34 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/blackbox_exporter/blackbox.yml"
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/blackbox.yml:ro
+    ports:
+      - "127.0.0.1:9115:9115"
+
+volumes:
+  prometheus-data:
+  grafana-data:
